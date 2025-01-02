@@ -37,8 +37,8 @@
         "express"
     ],
     "apidoc": {
-        "name": "orsettocommerce v5",
-        "version": "5.0.0",
+        "name": "orsettocommerce v1",
+        "version": "0.0.1",
         "description": "Orsettocommerce RESTFUL API Document",
         "title": "Orsettocommerce RESTFUL API Document"
     },
