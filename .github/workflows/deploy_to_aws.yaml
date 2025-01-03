@@ -14,13 +14,25 @@ jobs:
           - name: setup nodejs version
             uses: actions/setup-node@v3
             with:
-              nodejs-version: "18.14.2"
+              node-version: "18.14.2"
+
           - name: install packages
             run: sudo npm install
 
           - name: build codes
             run: sudo npm run build
 
+          - name: clean target directory
+            uses: appleboy/ssh-action@master
+            with:
+              host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
+              username: "ubuntu"
+              port: 22
+              key: ${{ secrets.SSH_KEY }}
+              script: |
+                rm -rf /var/www/api-services/*
+                mkdir -p /var/www/api-services
+          
           - name: deploy to aws ec2
             uses: easingthemes/ssh-deploy@v2.1.5
             env:
@@ -40,4 +52,4 @@ jobs:
               script: |
                 cd /var/www/api-services
                 pm2 delete all || true
-                pm2 start ecosystem.config.js
+                pm2 start dist/src/app.js
