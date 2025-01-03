@@ -21,7 +21,7 @@ jobs:
           - name: deploy to aws ec2
             uses: easingthemes/ssh-deploy@v2.1.5
             env:
-              SSH_PRIVATE_KEY: ${{ SSH_KEY }}
+              SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
               SOURCE: "."
               ROMOTO_HOST: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
               ROMOTO_USER: "ubuntu"
