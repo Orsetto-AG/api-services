@@ -18,6 +18,9 @@ jobs:
           - name: install packages
             run: sudo npm install
 
+          - name: build codes
+            run: sudo npm run build
+
           - name: deploy to aws ec2
             uses: easingthemes/ssh-deploy@v2.1.5
             env:
@@ -26,3 +29,15 @@ jobs:
               REMOTE_HOST: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
               REMOTE_USER: "ubuntu"
               TARGET: "/var/www/api-services/"
+          
+          - name: restart server
+            uses: appleboy/ssh-action@master
+            with:
+              host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
+              username: "ubuntu"
+              port: 22
+              key: ${{ secrets.SSH_KEY }}
+              script: |
+                cd /var/www/api-services
+                pm2 delete all || true
+                pm2 start ecosystem.config.js
