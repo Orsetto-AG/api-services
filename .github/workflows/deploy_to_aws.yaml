@@ -1,0 +1,28 @@
+name: CICD Pipeline
+
+on:
+    push:
+        branches: [main]
+jobs:
+    deploy_code: 
+        name: deploy_code
+        runs-on: ubuntu-latest
+        steps:
+          - name: checkout the code
+            uses: actions/checkout@v3
+
+          - name: setup nodejs version
+            uses: actions/setup-node@v3
+            with:
+              nodejs-version: "18.14.2"
+          - name: install packages
+            run: sudo npm install
+
+          - name: deploy to aws ec2
+            uses: easingthemes/ssh-deploy@v2.1.5
+            env:
+              SSH_PRIVATE_KEY: ${{ SSH_KEY }}
+              SOURCE: "."
+              ROMOTO_HOST: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
+              ROMOTO_USER: "ubuntu"
+              TARGET: "/var/www/api-services/"
