@@ -1,55 +1,69 @@
 name: CICD Pipeline
 
 on:
-    push:
-        branches: [main]
+  push:
+    branches: [main]
+
 jobs:
-    deploy_code: 
-        name: deploy_code
-        runs-on: ubuntu-latest
-        steps:
-          - name: checkout the code
-            uses: actions/checkout@v3
+  deploy_code: 
+    name: deploy_code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
 
-          - name: setup nodejs version
-            uses: actions/setup-node@v3
-            with:
-              node-version: "18.14.2"
+      - name: Setup Node.js version
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.14.2"
 
-          - name: install packages
-            run: sudo npm install
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
 
-          - name: build codes
-            run: sudo npm run build
+      - name: Install packages
+        run: sudo npm install
 
-          - name: clean target directory
-            uses: appleboy/ssh-action@master
-            with:
-              host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
-              username: "ubuntu"
-              port: 22
-              key: ${{ secrets.SSH_KEY }}
-              script: |
-                rm -rf /var/www/api-services/*
-                mkdir -p /var/www/api-services
-          
-          - name: deploy to aws ec2
-            uses: easingthemes/ssh-deploy@v2.1.5
-            env:
-              SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-              SOURCE: "."
-              REMOTE_HOST: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
-              REMOTE_USER: "ubuntu"
-              TARGET: "/var/www/api-services/"
-          
-          - name: restart server
-            uses: appleboy/ssh-action@master
-            with:
-              host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
-              username: "ubuntu"
-              port: 22
-              key: ${{ secrets.SSH_KEY }}
-              script: |
-                cd /var/www/api-services
-                pm2 delete all || true
-                pm2 start dist/src/app.js
+      - name: Build codes
+        run: sudo npm run build
+
+      - name: Clean target directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
+          username: "ubuntu"
+          port: 22
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            rm -rf /var/www/api-services/*
+            mkdir -p /var/www/api-services
+
+      - name: Deploy to AWS EC2
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          SOURCE: "."
+          REMOTE_HOST: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
+          REMOTE_USER: "ubuntu"
+          TARGET: "/var/www/api-services/"
+
+      - name: Upload .env file
+        uses: appleboy/scp-action@v0.1.2
+        with:
+          host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
+          username: "ubuntu"
+          port: 22
+          key: ${{ secrets.SSH_KEY }}
+          source: ".env"
+          target: "/var/www/api-services/"
+
+      - name: Restart server
+        uses: appleboy/ssh-action@master
+        with:
+          host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
+          username: "ubuntu"
+          port: 22
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/api-services
+            pm2 delete all || true
+            pm2 start dist/src/app.js
