@@ -32,9 +32,9 @@ jobs:
       - name: Clean target directory
         uses: appleboy/ssh-action@master
         with:
-          host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
-          username: "ubuntu"
-          port: 22
+          host: ${{ secrets.TARGET_HOST }}
+          username: ${{ secrets.TARGET_USERNAME }}
+          port: ${{ secrets.TARGET_PORT }}
           key: ${{ secrets.SSH_KEY }}
           script: |
             rm -rf /var/www/api-services/*
@@ -45,16 +45,16 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
           SOURCE: "."
-          REMOTE_HOST: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
-          REMOTE_USER: "ubuntu"
+          REMOTE_HOST: ${{ secrets.TARGET_HOST }}
+          REMOTE_USER: ${{ secrets.TARGET_USERNAME }}
           TARGET: "/var/www/api-services/"
 
       - name: Restart server
         uses: appleboy/ssh-action@master
         with:
-          host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
-          username: "ubuntu"
-          port: 22
+          host: ${{ secrets.TARGET_HOST }}
+          username: ${{ secrets.TARGET_USERNAME }}
+          port: ${{ secrets.TARGET_PORT }}
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/api-services
