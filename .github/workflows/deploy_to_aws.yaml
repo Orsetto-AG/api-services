@@ -49,16 +49,6 @@ jobs:
           REMOTE_USER: "ubuntu"
           TARGET: "/var/www/api-services/"
 
-      - name: Upload .env file
-        uses: appleboy/scp-action@v0.1.2
-        with:
-          host: "ec2-35-180-0-194.eu-west-3.compute.amazonaws.com"
-          username: "ubuntu"
-          port: 22
-          key: ${{ secrets.SSH_KEY }}
-          source: ".env"
-          target: "/var/www/api-services/"
-
       - name: Restart server
         uses: appleboy/ssh-action@master
         with:
