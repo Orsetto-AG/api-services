@@ -18,7 +18,10 @@ jobs:
           node-version: "18.14.2"
 
       - name: Create .env file
-        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+        run: |
+          cat <<EOF > .env
+          ${{ secrets.ENV_FILE_CONTENT }}
+          EOF
 
       - name: Install packages
         run: sudo npm install
