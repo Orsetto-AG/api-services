@@ -19,6 +19,8 @@ import { IsNotEmpty } from 'class-validator';
 import { ProductViewLog } from './productViewLog';
 import { CustomerCart } from './CustomerCart';
 import { ExportLog } from './ExportLog';
+import { Bid } from './BidModel';
+
 
 @Entity('customer')
 export class Customer extends BaseModel {
@@ -166,6 +168,9 @@ export class Customer extends BaseModel {
 
     @OneToOne(type => Vendor)
     public vendor: Vendor;
+
+    @OneToMany(() => Bid, (bid) => bid.customer)
+    public bids: Bid[];
 
     @BeforeInsert()
     public async createDetails(): Promise<void> {

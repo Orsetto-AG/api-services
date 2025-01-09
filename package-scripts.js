@@ -369,7 +369,7 @@ module.exports = {
                 script: copyCPYDir(
                     './src/',
                     './.beforeBuild',
-                    "'!./src/api/admin/**' '!./src/api/vendor/**' '!./src/api/vendorAdmin/**'"
+                    "'!./src/api/admin/**' '!./src/api/vendor/**' '!./src/api/vendorAdmin/**' '!./src/api/store/**'"
                 ),
                 hiddenFromHelp: true
             },
@@ -547,7 +547,7 @@ module.exports = {
                 script: copyCPYDir(
                     './src/',
                     './.beforeBuild',
-                    "'!./src/api/store/**' '!./src/api/admin/**' '!./src/api/vendorAdmin/**'"
+                    "'!./src/api/store/**' '!./src/api/admin/**' '!./src/api/vendorAdmin/**' '!./src/api/store/**'"
                 ),
                 hiddenFromHelp: true
             },

@@ -116,7 +116,7 @@ export class User extends BaseModel {
 
     @OneToOne(type => ExportLog, exportLog => exportLog.user)
     public exportLog: ExportLog;
-
+    
     @BeforeInsert()
     public async hashPassword(): Promise<void> {
         this.createdDate = moment().format('YYYY-MM-DD HH:mm:ss');

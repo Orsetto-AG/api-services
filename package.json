@@ -15,6 +15,9 @@
         "setup": "npm start config && npm start setup.script",
         "dbseed": "npm start dbseed.script",
         "tslint": "tslint --project .",
+        "lint-fix": "tslint --fix src/**/*.ts -t verbose",
+        "typeorm": "ts-node ./node_modules/.bin/typeorm -f ./src/database/ormconfig.ts",
+        "migration:generate": "npm run typeorm migration:create -- -n",
         "create-entities-index": "ts-node --pretty utils/create-entities-index.ts",
         "create-controller-index": "ts-node --pretty utils/create-controller-index.ts",
         "create-middleware-index": "ts-node --pretty utils/create-middleware-index.ts",
@@ -25,11 +28,6 @@
     "engines": {
         "node": ">=8.0.0",
         "npm": ">=8.3.0"
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "tslint --project ."
-        }
     },
     "keywords": [
         "NodeJS",
@@ -42,7 +40,7 @@
         "description": "Orsettocommerce RESTFUL API Document",
         "title": "Orsettocommerce RESTFUL API Document"
     },
-    "author": "Piccosoft",
+    "author": "MUSTAFA FIRAT YILMAZ",
     "overrides": {
         "express-status-monitor": {
             "socket.io": {
@@ -259,7 +257,6 @@
         "@types/uuid": "^3.4.3",
         "cpy-cli": "^4.1.0",
         "cross-env": "^5.1.1",
-        "husky": "^2.4.1",
         "mock-express-request": "^0.2.0",
         "mock-express-response": "^0.2.1",
         "ncp": "^2.0.0",

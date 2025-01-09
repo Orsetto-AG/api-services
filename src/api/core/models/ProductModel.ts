@@ -24,6 +24,7 @@ import { ProductSpecial } from './ProductSpecial';
 import { ProductDiscount } from './ProductDiscount';
 import { ProductVideo } from './ProductVideo';
 import { ProductTranslation } from './ProductTranslation';
+import { Auction } from './AuctionModel';
 
 @Entity('product')
 export class Product extends BaseModel {
@@ -197,6 +198,12 @@ export class Product extends BaseModel {
 
     @Column({ name: 'product_highlights', type: 'json', default: [] })
     public productHighlights: any;
+    
+    @Column({ type: 'tinyint', width: 1, default: false , name: 'is_auction'})
+    isAuction: boolean;
+    
+    @OneToMany(() => Auction, (auction) => auction.product)
+    auctions: Auction[];
 
     @OneToOne(type => Sku, skuDetail => skuDetail.product)
     @JoinColumn({ name: 'sku_id' })

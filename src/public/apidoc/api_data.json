@@ -1,5 +1,33 @@
 [
   {
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "varname1",
+            "description": "<p>No type.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "varname2",
+            "description": "<p>With type.</p>"
+          }
+        ]
+      }
+    },
+    "type": "",
+    "url": "",
+    "version": "0.0.0",
+    "filename": "src/public/apidoc/main.js",
+    "group": "/Users/mustafafiratyilmaz/Documents/orsetto/api-services/src/public/apidoc/main.js",
+    "groupTitle": "/Users/mustafafiratyilmaz/Documents/orsetto/api-services/src/public/apidoc/main.js",
+    "name": ""
+  },
+  {
     "type": "delete",
     "url": "/api/address/:id",
     "title": "Delete Address API",
@@ -4781,6 +4809,361 @@
     "name": "PutApiAdminVendorUpdateVendorSlug"
   },
   {
+    "type": "post",
+    "url": "/api/auctions/end/:auctionId",
+    "title": "End an Auction",
+    "name": "EndAuction",
+    "group": "Auctions",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "auctionId",
+            "description": "<p>Unique ID of the auction to be ended.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Success message indicating auction has been ended.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "auctionId",
+            "description": "<p>ID of the auction that was ended.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/AuctionController.ts",
+    "groupTitle": "Auctions"
+  },
+  {
+    "type": "get",
+    "url": "/api/auctions/active",
+    "title": "Request Active Auctions",
+    "name": "GetActiveAuctions",
+    "group": "Auctions",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "limit",
+            "description": "<p>Number of auctions to retrieve.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "offset",
+            "description": "<p>Number of auctions to skip.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "auctions",
+            "description": "<p>List of active auctions.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "auctions.id",
+            "description": "<p>Unique ID of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "auctions.title",
+            "description": "<p>Title of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "auctions.status",
+            "description": "<p>Current status of the auction (e.g., &quot;active&quot;).</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "auctions.startDate",
+            "description": "<p>Start date of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "auctions.endDate",
+            "description": "<p>End date of the auction.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/AuctionController.ts",
+    "groupTitle": "Auctions"
+  },
+  {
+    "type": "get",
+    "url": "/api/auctions/product/:productId",
+    "title": "Request Auction by Product ID",
+    "name": "GetAuctionByProductId",
+    "group": "Auctions",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "productId",
+            "description": "<p>Unique ID of the product associated with the auction.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "auction",
+            "description": "<p>Auction details for the specified product ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "auction.id",
+            "description": "<p>Unique ID of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "auction.title",
+            "description": "<p>Title of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "auction.status",
+            "description": "<p>Current status of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "auction.startDate",
+            "description": "<p>Start date of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "auction.endDate",
+            "description": "<p>End date of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "auction.productId",
+            "description": "<p>ID of the product in the auction.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/AuctionController.ts",
+    "groupTitle": "Auctions"
+  },
+  {
+    "type": "get",
+    "url": "/api/auctions/ending-soon",
+    "title": "Request Auctions Ending Soon",
+    "name": "GetEndingSoonAuctions",
+    "group": "Auctions",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "limit",
+            "description": "<p>Number of auctions to retrieve.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "offset",
+            "description": "<p>Number of auctions to skip.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "auctions",
+            "description": "<p>List of auctions ending soon.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "auctions.id",
+            "description": "<p>Unique ID of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "auctions.title",
+            "description": "<p>Title of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "auctions.status",
+            "description": "<p>Current status of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "auctions.startDate",
+            "description": "<p>Start date of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "auctions.endDate",
+            "description": "<p>End date of the auction.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/AuctionController.ts",
+    "groupTitle": "Auctions"
+  },
+  {
+    "type": "get",
+    "url": "/api/auctions/upcoming",
+    "title": "Request Upcoming Auctions",
+    "name": "GetUpcomingAuctions",
+    "group": "Auctions",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "limit",
+            "description": "<p>Number of auctions to retrieve.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "offset",
+            "description": "<p>Number of auctions to skip.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "auctions",
+            "description": "<p>List of upcoming auctions.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "auctions.id",
+            "description": "<p>Unique ID of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "auctions.title",
+            "description": "<p>Title of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "auctions.status",
+            "description": "<p>Current status of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "auctions.startDate",
+            "description": "<p>Start date of the auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "auctions.endDate",
+            "description": "<p>End date of the auction.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/AuctionController.ts",
+    "groupTitle": "Auctions"
+  },
+  {
     "type": "get",
     "url": "/api/auditlog/auditLog-list",
     "title": "Audit Log list API",
@@ -6501,6 +6884,148 @@
     "filename": "src/api/admin/controllers/BannerController.ts",
     "groupTitle": "Banner",
     "name": "PutApiBannerId"
+  },
+  {
+    "type": "get",
+    "url": "/api/bids/auction/:auctionId",
+    "title": "Get Bids for a Specific Auction",
+    "name": "GetBidsByAuctionId",
+    "group": "Bids",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "auctionId",
+            "description": "<p>Unique ID of the auction.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "bids",
+            "description": "<p>List of bids for the specified auction.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "bids.id",
+            "description": "<p>Unique ID of the bid.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "bids.auctionId",
+            "description": "<p>ID of the auction the bid belongs to.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "bids.bidderId",
+            "description": "<p>ID of the user who placed the bid.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "bids.bidAmount",
+            "description": "<p>The amount of the bid.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/BidController.ts",
+    "groupTitle": "Bids"
+  },
+  {
+    "type": "post",
+    "url": "/api/bids/place",
+    "title": "Place a New Bid",
+    "name": "PlaceBid",
+    "group": "Bids",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "auctionId",
+            "description": "<p>ID of the auction for which the bid is placed.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "bidderId",
+            "description": "<p>ID of the bidder placing the bid.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "bidAmount",
+            "description": "<p>Amount of the bid.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "bid",
+            "description": "<p>The bid placed successfully.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "bid.id",
+            "description": "<p>Unique ID of the bid.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "bid.auctionId",
+            "description": "<p>ID of the auction the bid belongs to.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "bid.bidderId",
+            "description": "<p>ID of the user who placed the bid.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "bid.bidAmount",
+            "description": "<p>The amount of the bid.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/BidController.ts",
+    "groupTitle": "Bids"
   },
   {
     "type": "delete",
