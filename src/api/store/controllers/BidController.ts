@@ -80,7 +80,7 @@ export class BidController {
     const auction = await this.auctionService.getAuctionById(auctionId);
 
     if (!auction) {
-      throw new NotFoundError(`Auciton not found by id.`);
+      throw new NotFoundError(`Auction not found by id.`);
     }
 
     if (!highestInitialBid) {
@@ -271,13 +271,26 @@ export class BidController {
               bidAmount
             );
           } else {
-            return this.bidService.placeBid(
-              auctionId,
-              bidderId,
-              bidAmount,
-              null,
-              null
-            );
+            if (largestBid.bidderId === bidderId) {
+              throw new BadRequestError(
+                `You already have the highest bid, so you don't need to make an offer.`
+              );
+            } else if (
+              largestBid.value > bidAmount &&
+              largestBid.name !== "max"
+            ) {
+              throw new BadRequestError(
+                `You cannot make a bid smaller than the minimum bid amount.`
+              );
+            } else {
+              return this.bidService.placeBid(
+                auctionId,
+                bidderId,
+                bidAmount,
+                null,
+                null
+              );
+            }
           }
         }
 

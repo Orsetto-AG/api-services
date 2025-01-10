@@ -1,10 +1,4 @@
-/*
- * orsettocommerce API
- * version 0.0.1
- * Copyright (c) 2021 piccosoft ltd
- * Author piccosoft ltd <support@piccosoft.com>
- * Licensed under the MIT license.
- */
+
 
 import { Column, Entity, BeforeInsert, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
 import moment = require('moment/moment');

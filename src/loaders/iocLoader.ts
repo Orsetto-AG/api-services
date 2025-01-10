@@ -1,10 +1,3 @@
-/*
- * orsettocommerce API
- * version 0.0.1
- * Copyright (c) 2021 piccosoft ltd
- * Author piccosoft ltd <support@piccosoft.com>
- * Licensed under the MIT license.
- */
 
 import { useContainer as classValidatorUseContainer } from 'class-validator';
 import { MicroframeworkLoader, MicroframeworkSettings } from 'microframework-w3tec';

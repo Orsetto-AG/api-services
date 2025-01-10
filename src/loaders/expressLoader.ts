@@ -1,12 +1,6 @@
-/*
- * orsettocommerce API
- * version 0.0.1
- * Copyright (c) 2021 piccosoft ltd
- * Author piccosoft ltd <support@piccosoft.com>
- * Licensed under the MIT license.
- */
 
 import { Application } from 'express';
+import { rateLimit } from 'express-rate-limit';
 import express from 'express';
 import * as bodyParser from 'body-parser';
 import { MicroframeworkLoader, MicroframeworkSettings } from 'microframework-w3tec';
@@ -21,6 +15,12 @@ import path from 'path';
 
 export const expressLoader: MicroframeworkLoader = (settings: MicroframeworkSettings | undefined) => {
     if (settings) {
+        const limiter = rateLimit({
+            windowMs: 1 * 60 * 1000,
+            limit: 60, // each IP can make up to 100 requests per `windowsMs` (1 minutes)
+            standardHeaders: true, // add the `RateLimit-*` headers to the response
+            legacyHeaders: false, // remove the `X-RateLimit-*` headers from the response
+          });
         const connection = settings.getData('connection');
 
         const authService = require('@orsettocommerce/auth').authorizationChecker;
@@ -34,6 +34,7 @@ export const expressLoader: MicroframeworkLoader = (settings: MicroframeworkSett
         app.use(lusca.xframe('SAMEORIGIN'));
         app.use(lusca.xssProtection(true));
         app.use(express.static(path.join(process.cwd(), '/views')));
+        app.use(limiter);
         const expressApp: Application = useExpressServer(app, {
             cors: true,
             classTransformer: true,

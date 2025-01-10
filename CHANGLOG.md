@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.1] - 2023-03-03
+## [0.1.0] - 2025-01-10
 
 ### Added
 
-- Define new table structures and create new data models.
-- Prepare Kafka and outbox models based on requirement
-- Code refactor for Storage parts and remove all things part and define push
-- Implement logic to verify uploaded data
-- Define Storage Tests
+- Added place bid service.
+- Added auction filtered services
+- Defined timezone UTC for project all parts.
+- Added api limitation.
+  
+## [0.0.1] - 2024-31-28
+
+### Added
+
+- Add init files

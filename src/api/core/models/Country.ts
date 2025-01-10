@@ -1,10 +1,4 @@
-/*
- * orsettocommerce API
- * version 0.0.1
- * Copyright (c) 2021 piccosoft ltd
- * Author piccosoft ltd <support@piccosoft.com>
- * Licensed under the MIT license.
- */
+
 
 import { Column, PrimaryGeneratedColumn, Entity, OneToMany, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { Zone } from './Zone';

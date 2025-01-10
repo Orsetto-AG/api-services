@@ -1,10 +1,3 @@
-/*
- * orsettocommerce API
- * version 0.0.1
- * Copyright (c) 2021 piccosoft ltd
- * Author piccosoft ltd <support@piccosoft.com>
- * Licensed under the MIT license.
- */
 
 import { MicroframeworkLoader, MicroframeworkSettings } from 'microframework-w3tec';
 import { createConnection, getConnectionOptions } from 'typeorm';
@@ -24,6 +17,7 @@ export const typeormLoader: MicroframeworkLoader = async (settings: Microframewo
         password: env.db.password,
         database: env.db.database,
         synchronize: env.db.synchronize,
+        timezone: 'Z',
         logging: true,
         logger: 'advanced-console',
         entities: Object.values(entities),

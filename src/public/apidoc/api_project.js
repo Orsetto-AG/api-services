@@ -1,6 +1,6 @@
 define({
   "name": "orsettocommerce v1",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Orsettocommerce RESTFUL API Document",
   "title": "Orsettocommerce RESTFUL API Document",
   "sampleUrl": false,
@@ -8,7 +8,7 @@ define({
   "apidoc": "0.3.0",
   "generator": {
     "name": "apidoc",
-    "time": "2025-01-09T23:40:39.474Z",
+    "time": "2025-01-10T16:59:21.186Z",
     "url": "https://apidocjs.com",
     "version": "0.29.0"
   }
