@@ -4050,6 +4050,79 @@
   },
   {
     "type": "Post",
+    "url": "/api/customer/check-display-name-url",
+    "title": "Check Vendor Display Name API",
+    "group": "Admin_vendor",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Authorization",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Request body": [
+          {
+            "group": "Request body",
+            "type": "Number",
+            "optional": false,
+            "field": "vendorId",
+            "description": ""
+          },
+          {
+            "group": "Request body",
+            "type": "String",
+            "optional": false,
+            "field": "displayNameURL",
+            "description": "<p>Display Name / URL</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Input",
+          "content": "{\n     \"vendorId\": 1,\n     \"displayNameURL\" : \"\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success",
+          "content": "HTTP/1.1 200 OK\n{\n     \"status\": \"1\"\n     \"message\": \"Display name is available\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/check-display-name-url"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "checkDisplayNameURLadmin vendor error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Admin_vendor",
+    "name": "PostApiCustomerCheckDisplayNameUrl"
+  },
+  {
+    "type": "Post",
     "url": "/api/vendor/check-display-name-url",
     "title": "Check Vendor Display Name API",
     "group": "Admin_vendor",
@@ -9654,6 +9727,52 @@
     "name": "GetApiAdminCustomerVendorGraphList"
   },
   {
+    "type": "Get",
+    "url": "/api/customer/forgot-password-key-check",
+    "title": "Forgot Password Key check API",
+    "group": "Customer",
+    "parameter": {
+      "fields": {
+        "Request body": [
+          {
+            "group": "Request body",
+            "type": "String",
+            "optional": false,
+            "field": "encryptedKey",
+            "description": "<p>key</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success",
+          "content": "HTTP/1.1 200 OK\n{\n     \"message\": \"Valid key\",\n     \"status\": \"1\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/forgot-password-key-check/:key"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "keyCheck error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Customer",
+    "name": "GetApiCustomerForgotPasswordKeyCheck"
+  },
+  {
     "type": "delete",
     "url": "/api/customer-group/:id",
     "title": "Delete Customer Group API",
@@ -10242,6 +10361,210 @@
     "name": "PostApiAdminCustomerDeleteCustomer"
   },
   {
+    "type": "Post",
+    "url": "/api/customer/login",
+    "title": "Login API",
+    "group": "Customer",
+    "parameter": {
+      "fields": {
+        "Request body": [
+          {
+            "group": "Request body",
+            "type": "String",
+            "optional": false,
+            "field": "emailId",
+            "description": "<p>User Email Id</p>"
+          },
+          {
+            "group": "Request body",
+            "type": "String",
+            "optional": false,
+            "field": "password",
+            "description": "<p>User Password</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Input",
+          "content": "{\n     \"emailId\" : \"\",\n     \"password\" : \"\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success",
+          "content": "HTTP/1.1 200 OK\n{\n       \"data\": \"{\n        \"token\":'',\n        \"user\": {\n         \"id\": 1,\n         \"firstName\": \"\",\n         \"email\": \"\",\n         \"mobileNumber\": \"\",\n         \"avatar\": \"\",\n         \"avatarPath\": \"\",\n         \"vendorId\": 1,\n         \"vendorPrefixId\": 1,\n         \"currencyCode\": \"\",\n         \"currencySymbolLeft\": \"\",\n         \"currencySymbolRight\": \"\",\n         \"lastName\": \"\",\n         \"username\": \"\"\n            }\n               }\n                }\n             }\",\n       \"message\": \"Successfully loggedIn\",\n       \"status\": \"1\"\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/login"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "Login error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Customer",
+    "name": "PostApiCustomerLogin"
+  },
+  {
+    "type": "Post",
+    "url": "/api/customer/logout",
+    "title": "Log Out API",
+    "group": "Customer",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Authorization",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success",
+          "content": "HTTP/1.1 200 OK\n{\n     \"message\": \"Successfully logout\",\n     \"status\": \"1\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/logout"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "Logout error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Customer",
+    "name": "PostApiCustomerLogout"
+  },
+  {
+    "type": "Post",
+    "url": "/api/customer/otp-validation",
+    "title": "OTP Validation API",
+    "group": "Customer",
+    "parameter": {
+      "fields": {
+        "Request body": [
+          {
+            "group": "Request body",
+            "type": "String",
+            "size": "..96",
+            "optional": false,
+            "field": "emailId",
+            "description": "<p>Vendor Email Id</p>"
+          },
+          {
+            "group": "Request body",
+            "type": "Number",
+            "optional": false,
+            "field": "otp",
+            "description": "<p>otp</p>"
+          }
+        ]
+      }
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/otp-validation"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "Customer OTP Validation error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Customer",
+    "name": "PostApiCustomerOtpValidation"
+  },
+  {
+    "type": "Post",
+    "url": "/api/customer/register",
+    "title": "Register API",
+    "group": "Customer",
+    "parameter": {
+      "fields": {
+        "Request body": [
+          {
+            "group": "Request body",
+            "type": "String",
+            "size": "8..128",
+            "optional": false,
+            "field": "password",
+            "description": "<p>Customer Password</p>"
+          },
+          {
+            "group": "Request body",
+            "type": "String",
+            "size": "..96",
+            "optional": false,
+            "field": "emailId",
+            "description": "<p>Vendor Email Id</p>"
+          },
+          {
+            "group": "Request body",
+            "type": "Boolean",
+            "optional": false,
+            "field": "isCompany",
+            "description": "<p>Customer or Company</p>"
+          }
+        ]
+      }
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/register"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "Customer Register error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Customer",
+    "name": "PostApiCustomerRegister"
+  },
+  {
     "type": "put",
     "url": "/api/admin-customer/:id",
     "title": "Update Customer API",
@@ -10365,6 +10688,258 @@
     "filename": "src/api/admin/controllers/CustomerController.ts",
     "groupTitle": "Customer",
     "name": "PutApiAdminCustomerId"
+  },
+  {
+    "type": "Put",
+    "url": "/api/customer/change-password",
+    "title": "Change Password API",
+    "group": "Customer",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Authorization",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Request body": [
+          {
+            "group": "Request body",
+            "type": "String",
+            "optional": false,
+            "field": "oldPassword",
+            "description": "<p>User oldPassword</p>"
+          },
+          {
+            "group": "Request body",
+            "type": "String",
+            "optional": false,
+            "field": "newPassword",
+            "description": "<p>User newPassword</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Input",
+          "content": "{\n     \"newPassword\" : \"\",\n     \"oldPassword\" : \"\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success",
+          "content": "HTTP/1.1 200 OK\n{\n     \"message\": \"Your password changed successfully\",\n     \"status\": \"1\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/change-password"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "changePassword error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Customer",
+    "name": "PutApiCustomerChangePassword"
+  },
+  {
+    "type": "put",
+    "url": "/api/customer/forgot-password-link",
+    "title": "Forgot Password Link API",
+    "group": "Customer",
+    "parameter": {
+      "fields": {
+        "Request body": [
+          {
+            "group": "Request body",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>User email</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Input",
+          "content": "{\n     \"emailId\" : \"\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success",
+          "content": "HTTP/1.1 200 OK\n{\n     \"message\": \"Successfully\",\n     \"status\": \"1\",\n     \"data\": \"\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/forgot-password-link"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "store b2b error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Customer",
+    "name": "PutApiCustomerForgotPasswordLink"
+  },
+  {
+    "type": "Put",
+    "url": "/api/customer/mail/link",
+    "title": "Change mail API",
+    "group": "Customer",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Authorization",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Request Body": [
+          {
+            "group": "Request Body",
+            "type": "String",
+            "optional": false,
+            "field": "emailId",
+            "description": "<p>emailId</p>"
+          },
+          {
+            "group": "Request Body",
+            "type": "String",
+            "optional": false,
+            "field": "password",
+            "description": "<p>password</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "success",
+          "content": "HTTP/1.1 200 Ok\n{\n     \"status\": \"1\",\n     \"message\": \"Email Send Successfuly.\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/mail/link"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "ChangeMail Error",
+          "content": "HTTP/1.1 500 Internal server error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Customer",
+    "name": "PutApiCustomerMailLink"
+  },
+  {
+    "type": "Put",
+    "url": "/api/customer/reset-password",
+    "title": "Reset Password API",
+    "group": "Customer",
+    "parameter": {
+      "fields": {
+        "Request body": [
+          {
+            "group": "Request body",
+            "type": "String",
+            "optional": false,
+            "field": "newPassword",
+            "description": "<p>newPassword</p>"
+          },
+          {
+            "group": "Request body",
+            "type": "String",
+            "optional": false,
+            "field": "key",
+            "description": "<p>key</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Input",
+          "content": "{\n     \"key\": \"\",\n     \"newPassword\" : \"\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success",
+          "content": "HTTP/1.1 200 OK\n{\n     \"message\": \"Your has been password changed successfully\",\n     \"status\": \"1\",\n     \"data\": \"\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/reset-password"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "resetPassword error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Customer",
+    "name": "PutApiCustomerResetPassword"
   },
   {
     "type": "Delete",
@@ -26029,6 +26604,52 @@
     "filename": "src/api/vendor/controllers/VendorDocumentController.ts",
     "groupTitle": "VendorDocumentGroup",
     "name": "PutApiVendorDocumentId"
+  },
+  {
+    "type": "Get",
+    "url": "/api/customer/vendor-profile",
+    "title": "Vendor Get Profile  API",
+    "group": "Vendor",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Authorization",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success",
+          "content": "HTTP/1.1 200 OK\n{\n \"status\": \"1\"\n \"message\": \"successfully got Vendor profile.\",\n \"data\": {\n  \"createdBy\": 1,\n  \"createdDate\": \"\",\n  \"modifiedBy\": 1,\n  \"modifiedDate\": \"\",\n  \"vendorId\": 1,\n  \"vendorPrefixId\": 1,\n  \"customerId\": 1,\n  \"vendorGroupId\": 1,\n  \"commission\": \"\",\n  \"industryId\": 1,\n  \"contactPersonName\": \"\",\n  \"vendorSlugName\": \"\",\n  \"designation\": \"\",\n  \"companyName\": \"\",\n  \"companyLocation\": \"\",\n  \"companyAddress1\": \"\",\n  \"companyAddress2\": \"\",\n  \"companyCity\": \"\",\n  \"companyState\": \"\",\n  \"zoneId\": 1,\n  \"companyCountryId\": 1,\n  \"pincode\": \"\",\n  \"companyDescription\": \"\",\n  \"companyMobileNumber\": \"\",\n  \"companyEmailId\": 1,\n  \"companyWebsite\": \"\",\n  \"companyTaxNumber\": \"\",\n  \"companyPanNumber\": \"\",\n  \"companyLogo\": \"\",\n  \"companyLogoPath\": \"\",\n  \"paymentInformation\": \"\",\n  \"verification\": {\n      \"email\": \"\",\n      \"policy\": \"\",\n      \"category\": \"\",\n      \"decision\": \"\",\n      \"document\": \"\",\n      \"storeFront\": \"\",\n      \"bankAccount\": \"\",\n      \"paymentInfo\": \"\",\n      \"companyDetail\": \"\",\n      \"deliveryMethod\": \"\",\n      \"subscriptionPlan\": \"\",\n      \"distributionPoint\": \"\"\n   },\n   \"verificationComment\": [],\n   \"verificationDetailComment\": [],\n   \"bankAccount\": {\n      \"bic\": \"\",\n      \"ifsc\": \"\",\n      \"branch\": \"\",\n      \"bankName\": \"\",\n      \"accountNumber\": \"\",\n      \"accountCreatedOn\": \"\"\n    },\n   \"approvalFlag\": \"\",\n   \"approvedBy\": \"\",\n   \"approvalDate\": \"\",\n   \"companyCoverImage\": \"\",\n   \"companyCoverImagePath\": \"\",\n   \"displayNameUrl\": \"\",\n   \"instagram\": \"\",\n   \"twitter\": \"\",\n   \"youtube\": \"\",\n   \"facebook\": \"\",\n   \"whatsapp\": \"\",\n   \"bankName\": \"\",\n   \"bankAccountNumber\": \"\",\n   \"accountHolderName\": \"\",\n   \"ifscCode\": \"\",\n   \"businessSegment\": \"\",\n   \"businessType\": \"\",\n   \"mailOtp\": \"\",\n   \"loginOtpExpireTime\": \"\",\n   \"businessNumber\": \"\",\n   \"preferredShippingMethod\": \"\",\n   \"capabilities\": [\n      {\n          \"data\": \"\",\n          \"status\": 1\n      }\n      ],\n   \"vendorDescription\": \"\",\n   \"isEmailVerify\": \"\",\n   \"customerDetail\": {\n      \"firstName\": \"\",\n      \"lastName\": \"\",\n      \"email\": \"\",\n      \"mobileNumber\": \"\",\n      \"avatar\": \"\",\n      \"avatarPath\": \"\",\n      \"isActive\": 1,\n      \"dob\": \"\",\n      \"gender\": \"\"\n   },\n   \"countryName\": \"\",\n   \"vendorCategories\": [],\n   \"vendorMedia\": [\n      {\n          \"createdBy\": 1,\n          \"createdDate\": \"\",\n          \"modifiedBy\": 1,\n          \"modifiedDate\": \"\",\n          \"id\": 1,\n          \"vendorId\": 1,\n          \"fileName\": \"\",\n          \"filePath\": \"\",\n          \"mediaType\": \"\",\n          \"defaultImage\": \"\",\n          \"videoType\": \"\",\n          \"sortOrder\": \"\",\n          \"showHomePage\": \"\",\n          \"url\": \"\",\n          \"title\": \"\",\n          \"isActive\": 1,\n          \"isDelete\": 1\n        },\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/api/customer/vendor-profile"
+      }
+    ],
+    "error": {
+      "examples": [
+        {
+          "title": "vendor error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/store/controllers/StoreCustomerController.ts",
+    "groupTitle": "Vendor",
+    "name": "GetApiCustomerVendorProfile"
   },
   {
     "type": "Get",

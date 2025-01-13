@@ -11,7 +11,7 @@ import {
 } from "routing-controllers";
 import { BidService } from "../../core/services/BidService";
 import { Bid } from "../../core/models/BidModel";
-import { CreateBidRequest } from "./request/CreateBidRequest";
+import { CreateBidRequest } from "./requests/CreateBidRequest";
 import { AuctionService } from "../../core/services/AuctionService";
 
 @JsonController("/bids")

@@ -36,7 +36,7 @@ import { EmailChangeOtp } from './requests/EmailChangeOtpRequest';
 import { CheckDisplayNameRequest } from './requests/CheckDisplayNameRequest';
 import { RegistrationOtp, VendorMedia } from '../../../common/entities-index';
 import { VendorMediaService } from '../../../api/core/services/VendorMediaService';
-import { RegistrationOtpService } from '../../../api/core/services/RegistraionOtpService';
+import { RegistrationOtpService } from '../../../api/core/services/RegistrationOtpService';
 import { UserService } from '../../../api/core/services/UserService';
 
 @JsonController('/vendor')

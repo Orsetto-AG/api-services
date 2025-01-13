@@ -373,5 +373,6 @@ export * from '../database/migrations/1729490178800-AddSlugNamePermissionModuleT
 export * from '../database/migrations/1729664742399-AddGmapSlugnamePluginsTable';
 export * from '../database/migrations/1729847672248-ChangeOauthPluginName';
 export * from '../database/migrations/1736112926266-AddAuctionBidRelation';
+export * from '../database/migrations/1736715953697-UpdateRegisterProcess';
 export * from '../../add-ons/WebHook/api/migrations/1714024644076-AddPluginWebhook';
 export * from '../../add-ons/WebHook/api/migrations/1714025757863-CreateWebHookTable';

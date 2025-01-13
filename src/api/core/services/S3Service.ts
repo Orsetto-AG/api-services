@@ -121,7 +121,7 @@ export class S3Service {
             const gm = require('gm').subClass({ imageMagick: true });
             return gm(buffer)
                 .resize(widthString, heightString)
-                .toBuffer((error: any, data: any) => {
+                .toBuffer('jpeg',(error: any, data: any) => {
                     if (error) {
                         throw error;
                     } else {

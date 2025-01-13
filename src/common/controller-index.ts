@@ -37,6 +37,7 @@ export * from '../api/core/controllers/CommonController';
 export * from '../api/core/controllers/MediaController';
 export * from '../api/store/controllers/AuctionController';
 export * from '../api/store/controllers/BidController';
+export * from '../api/store/controllers/StoreCustomerController';
 export * from '../api/vendor/controllers/VendorController';
 export * from '../api/vendor/controllers/VendorCustomerGroupController';
 export * from '../api/vendor/controllers/VendorDocumentController';

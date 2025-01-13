@@ -128,17 +128,17 @@ export class Customer extends BaseModel {
     @Column({ name: 'site_id' })
     public siteId: number;
 
+    @Column({ default: false , name : 'is_company'})
+    public isCompany: boolean;
+
+    @Column({ default: false , name : 'is_completed'})
+    public isCompleted: boolean;
+
     @Column({ name: 'address2' })
     public address2: number;
 
     @Column({ name: 'landmark' })
     public landmark: string;
-
-    @Column({ name: 'mail_otp' })
-    public mailOtp: number;
-
-    @Column({ name: 'mail_otp_expire_time' })
-    public mailOtpExpireTime: string;
 
     @ManyToOne(type => CustomerGroup, customergroup => customergroup.customer)
     @JoinColumn({ name: 'customer_group_id' })

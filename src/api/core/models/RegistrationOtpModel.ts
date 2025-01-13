@@ -1,10 +1,4 @@
-/*
- * orsettocommerce API
- * version 4.8.1
- * Copyright (c) 2021 piccosoft ltd
- * Author piccosoft ltd <support@piccosoft.com>
- * Licensed under the MIT license.
- */
+
 
 import { Column, Entity, BeforeUpdate, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseModel } from './BaseModel';
@@ -23,7 +17,7 @@ export class RegistrationOtp extends BaseModel {
     @Column({ name: 'otp' })
     public otp: number;
 
-    // 1-SELLER, 2-BUYER
+    // 1-CUSTOMER, 2-COMPANY
     @Column({ name: 'user_type' })
     public userType: number;
 

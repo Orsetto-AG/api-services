@@ -193,7 +193,7 @@ export class ImageService {
             const gm = require('gm').subClass({ imageMagick: true });
             return gm(directoryPath)
                 .resize(widthString, heightString)
-                .toBuffer((error: any, buffer: any) => {
+                .toBuffer('jpeg', (error: any, buffer: any) => {
                     if (error) {
                         return resolve(undefined);
                     } else {
