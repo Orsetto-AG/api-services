@@ -457,6 +457,7 @@ export class StoreCustomerController {
         "avatarPath",
         "isActive",
         "isCompany",
+        "isCompleted"
       ],
       where: { email: loginParam.emailId },
     });
