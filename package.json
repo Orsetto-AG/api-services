@@ -1,6 +1,6 @@
 {
     "name": "orsettocommerce",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Orsettocommerce RESTFUL API",
     "main": "src/app.ts",
     "scripts": {
@@ -36,7 +36,7 @@
     ],
     "apidoc": {
         "name": "orsettocommerce v1",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "description": "Orsettocommerce RESTFUL API Document",
         "title": "Orsettocommerce RESTFUL API Document"
     },

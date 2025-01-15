@@ -19,7 +19,6 @@ import { ProductToCategoryService } from '../../core/services/ProductToCategoryS
 import { ProductImageService } from '../../core/services/ProductImageService';
 import { Product } from '../../core/models/ProductModel';
 import { ProductDiscount } from '../../core/models/ProductDiscount';
-import { ProductSpecial } from '../../core/models/ProductSpecial';
 import { VendorProducts } from '../../core/models/VendorProducts';
 import { CreateVendorProductRequest } from './requests/CreateVendorProductRequest';
 import { ProductToCategory } from '../../core/models/ProductToCategory';
@@ -28,7 +27,6 @@ import { CategoryService } from '../../core/services/CategoryService';
 import { CategoryPathService } from '../../core/services/CategoryPathService';
 import { VendorProductService } from '../../core/services/VendorProductService';
 import { ProductDiscountService } from '../../core/services/ProductDiscountService';
-import { ProductSpecialService } from '../../core/services/ProductSpecialService';
 import { VendorService } from '../../core/services/VendorService';
 import { CustomerService } from '../../core/services/CustomerService';
 import moment = require('moment');
@@ -56,7 +54,6 @@ export class VendorAdminProductController {
         private productImageService: ProductImageService,
         private categoryService: CategoryService,
         private productDiscountService: ProductDiscountService,
-        private productSpecialService: ProductSpecialService,
         private vendorProductService: VendorProductService,
         private vendorService: VendorService,
         private emailTemplateService: EmailTemplateService,
@@ -333,19 +330,6 @@ export class VendorAdminProductController {
             }
         }
 
-        // Product Special
-        if (product.productSpecial) {
-            const productSpecial: any[] = product.productSpecial;
-            for (const special of productSpecial) {
-                const specialPriceData: any = new ProductSpecial();
-                specialPriceData.productId = saveProduct.productId;
-                specialPriceData.priority = special.specialPriority;
-                specialPriceData.price = special.specialPrice;
-                specialPriceData.dateStart = moment(special.specialDateStart).toISOString();
-                specialPriceData.dateEnd = moment(special.specialDateEnd).toISOString();
-                await this.productSpecialService.create(specialPriceData);
-            }
-        }
         // product tire price
         if (product.tirePrices) {
             const tirePrice: any = product.tirePrices;
@@ -376,414 +360,6 @@ export class VendorAdminProductController {
             const errorResponse: any = {
                 status: 0,
                 message: 'Unable to create the product',
-            };
-            return response.status(400).send(errorResponse);
-        }
-    }
-
-    // update Product API
-    /**
-     * @api {put} /api/admin-vendor-product/:id Update Vendor Product API
-     * @apiGroup Admin Vendor Product
-     * @apiHeader {String} Authorization
-     * @apiParam (Request body) {String} vendorId vendorId
-     * @apiParam (Request body) {String{..255}} productName productName
-     * @apiParam (Request body) {String} [productDescription] productDescription
-     * @apiParam (Request body) {String{..64}} sku stock keeping unit
-     * @apiParam (Request body) {String{..12}} upc upc
-     * @apiParam (Request body) {String{..255}} hsn hsn
-     * @apiParam (Request body) {String} image product Image
-     * @apiParam (Request body) {String} productSlug productSlug
-     * @apiParam (Request body) {Number} quantity quantity
-     * @apiParam (Request body) {String} categoryId CategoryId
-     * @apiParam (Request body) {String} [relatedProductId] relatedProductId
-     * @apiParam (Request body) {Number} price price
-     * @apiParam (Request body) {Number} [packingCost] packingCost
-     * @apiParam (Request body) {Number} [shippingCost] shippingCost
-     * @apiParam (Request body) {Number} [tax] tax
-     * @apiParam (Request body) {Number} [taxType] taxType
-     * @apiParam (Request body) {Number} [others] others
-     * @apiParam (Request body) {Number} [outOfStockStatus] outOfStockStatus
-     * @apiParam (Request body) {Number} [requiredShipping] requiredShipping
-     * @apiParam (Request body) {String} [dateAvailable] dateAvailable
-     * @apiParam (Request body) {Number{..9999}} sortOrder sortOrder
-     * @apiParam (Request body) {String} [productSpecial] productSpecial
-     * @apiParam (Request body) {String} [tirePrices] tirePrices
-     * @apiParam (Request body) {Number} [hasTirePrice]
-     * @apiParam (Request body) {String} [productDiscount] productDiscount
-     * @apiParam (Request body) {Number} [vendorProductCommission] vendorProductCommission
-     * @apiParam (Request body) {Object} [productVideo] video
-     * @apiParam (Request body) {String} productVideo.name video name
-     * @apiParam (Request body) {String} productVideo.path for embedded have to pass path only
-     * @apiParam (Request body) {Number} productVideo.type 1 -> video 2 -> embedded
-     * @apiParamExample {json} Input
-     * {
-     *      "productName" : "",
-     *      "productDescription" : "",
-     *      "sku" : "",
-     *      "image" : "",
-     *      "categoryId" : [],
-     *      "upc" : "",
-     *      "hsn" : "",
-     *      "price" : "",
-     *      "packingCost" : "",
-     *      "shippingCost" : "",
-     *      "tax" : "",
-     *      "taxType" : "",
-     *      "others" : "",
-     *      "outOfStockStatus" : "",
-     *      "requiredShipping" : "",
-     *      "dateAvailable" : "",
-     *      "outOfStockStatus" : "",
-     *      "sortOrder" : "",
-     *      "vendorProductCommission" : "",
-     *      "image":[
-     *      {
-     *      "image":""
-     *      "containerName":""
-     *      "defaultImage":""
-     *      }
-     *      ],
-     *       "relatedProductId":[],
-     *      "hasTirePrice" : "",
-     *      "tirePrices":[
-     *      {
-     *      "quantity":""
-     *      "price":"",
-     *      "skuName":""
-     *      }
-     *      ],
-     *      "productSpecial":[
-     *      {
-     *     "customerGroupId":""
-     *     "specialPriority":""
-     *     "specialPrice":""
-     *     "specialDateStart":""
-     *     "specialDateEnd":""
-     *      }],
-     *       "productDiscount":[
-     *      {
-     *         "discountPriority":""
-     *         "discountPrice":""
-     *         "discountDateStart":""
-     *         "discountDateEnd"""
-     *      }],
-     *       "productVideo":{
-     *               "name": "",
-     *               "path": "",
-     *               "type": ""
-     *      }
-     * }
-     * @apiSuccessExample {json} Success
-     * HTTP/1.1 200 OK
-     * {
-     *      "message": "Successfully updated product.",
-     *      "status": "1"
-     * }
-     * @apiSampleRequest /api/admin-vendor-product/:id
-     * @apiErrorExample {json} updateProduct error
-     * HTTP/1.1 500 Internal Server Error
-     */
-    @Put('/:id')
-    @Authorized(['admin', 'edit-market-place-product'])
-    public async updateProduct(@Param('id') id: number, @Body({ validate: true }) product: CreateVendorProductRequest, @Req() request: any, @Res() response: any): Promise<any> {
-        const category = product.categoryId;
-        if (category.length === 0) {
-            return response.status(400).send({
-                status: 0,
-                message: 'Category should not be empty',
-            });
-        }
-        let validatedDiscount = false;
-        let validatedSpecial = false;
-        const validateDiscountPrice: any = product.productDiscount;
-        if (validateDiscountPrice.length > 0) {
-            validatedDiscount = validateDiscountPrice.some(discData => discData.discountPrice < 0);
-        }
-        const validateSpecialPrice: any = product.productSpecial;
-        if (validateSpecialPrice.length > 0) {
-            validatedSpecial = validateSpecialPrice.some(specialData => specialData.specialPrice < 0);
-        }
-        if (validatedDiscount || validatedSpecial || (product.price < 0)) {
-            const errorResponse: any = {
-                status: 0,
-                message: 'Price should not be in negative',
-            };
-            return response.status(400).send(errorResponse);
-        }
-        if ((product.tax < 0)) {
-            const errorResponse: any = {
-                status: 0,
-                message: 'Tax should not be in negative',
-            };
-            return response.status(400).send(errorResponse);
-        }
-        const updateProduct: any = await this.productService.findOne({
-            where: {
-                productId: id,
-            },
-        });
-        if (!updateProduct) {
-            const errorResponse: any = {
-                status: 0,
-                message: 'Invalid product Id',
-            };
-            return response.status(400).send(errorResponse);
-        }
-        const metaTagTitle = product.productSlug ? product.productSlug : product.productName;
-        const slug = metaTagTitle.trim();
-        const data = slug.replace(/\s+/g, '-').replace(/[&\/\\@#,+()$~%.'":*?<>{}]/g, '').toLowerCase();
-        updateProduct.productSlug = await this.validate_slug(data, id);
-        updateProduct.name = product.productName;
-        updateProduct.description = product.productDescription ? await this.imageService.escapeChar(product.productDescription) : '';
-        updateProduct.sku = product.sku;
-        updateProduct.upc = product.upc;
-        updateProduct.hsn = product.hsn;
-        updateProduct.quantity = product.quantity ? product.quantity : 1;
-        updateProduct.hasTirePrice = product.hasTirePrice;
-        const serviceCharge: any = {};
-        serviceCharge.productCost = product.price;
-        serviceCharge.packingCost = product.packingCost ? product.packingCost : 0;
-        serviceCharge.shippingCost = product.shippingCost ? product.shippingCost : 0;
-        serviceCharge.tax = 0;
-        serviceCharge.others = product.others ? product.others : 0;
-        updateProduct.quotationAvailable = product.quotationAvailable ? product.quotationAvailable : 0;
-        updateProduct.serviceCharges = JSON.stringify(serviceCharge);
-        updateProduct.price = serviceCharge.productCost + serviceCharge.packingCost + serviceCharge.shippingCost + serviceCharge.others;
-        // saving sku //
-        let saveSku;
-        const findSku = await this.skuService.findOne({ where: { skuName: updateProduct.sku } });
-        if (findSku) {
-            const finddSku = await this.productService.findSkuName(updateProduct.productId, product.sku, 0);
-            if (finddSku) {
-                const errorResponse: any = {
-                    status: 0,
-                    message: 'Duplicate SKU name, give some other name',
-                };
-                return response.status(400).send(errorResponse);
-            } else {
-                findSku.skuName = updateProduct.sku;
-                findSku.price = updateProduct.price;
-                findSku.quantity = product.quantity;
-                findSku.isActive = 1;
-                saveSku = await this.skuService.create(findSku);
-            }
-        } else {
-            const newSku: any = new Sku();
-            newSku.skuName = updateProduct.sku;
-            newSku.price = updateProduct.price;
-            newSku.quantity = product.quantity;
-            newSku.isActive = 1;
-            saveSku = await this.skuService.create(newSku);
-        }
-        // ending sku //
-        updateProduct.skuId = saveSku.id;
-        updateProduct.taxType = product.taxType ? product.taxType : 0;
-        updateProduct.taxValue = product.tax ? product.tax : 0;
-        updateProduct.stockStatusId = product.outOfStockStatus;
-        updateProduct.shipping = product.requiredShipping;
-        updateProduct.dateAvailable = moment(product.dateAvailable).toISOString();
-        updateProduct.sortOrder = product.sortOrder;
-        updateProduct.height = product.height ? product.height : 0;
-        updateProduct.weight = product.weight ? product.weight : 0;
-        updateProduct.length = product.length ? product.length : 0;
-        updateProduct.width = product.width ? product.width : 0;
-        // adding category name and product name in keyword field for keyword search
-        const rows: any = [];
-        if (category.length !== 0) {
-            for (const categoryId of category) {
-                const categoryNames: any = await this.categoryService.findOne({
-                    where: {
-                        categoryId,
-                    },
-                });
-                const name = '~' + categoryNames.name + '~';
-                rows.push(name);
-            }
-            rows.push('~' + product.productName + '~');
-        }
-        const values = rows.toString();
-        updateProduct.keywords = values;
-        updateProduct.modifiedBy = product.vendorId;
-        const vendorProductCheck = await this.vendorProductService.findOne({
-            where: {
-                productId: updateProduct.productId,
-            },
-        });
-        if (vendorProductCheck) {
-            vendorProductCheck.quotationAvailable = product.quotationAvailable ? product.quotationAvailable : 0;
-            await this.vendorProductService.create(vendorProductCheck);
-        }
-        const saveProduct = await this.productService.create(updateProduct);
-
-        // delete previous category
-        this.productToCategoryService.delete({ productId: saveProduct.productId });
-
-        // save category
-        if (category.length !== 0) {
-            for (const categoryId of category) {
-                const newProductToCategory: any = new ProductToCategory();
-                newProductToCategory.productId = saveProduct.productId;
-                newProductToCategory.categoryId = categoryId;
-                newProductToCategory.isActive = 1;
-                this.productToCategoryService.create(newProductToCategory);
-            }
-        }
-
-        // Delete previous images
-        this.productImageService.delete({ productId: saveProduct.productId });
-        // Save products Image
-        if (product.image) {
-            const productImage: any = product.image;
-            for (const imageRow of productImage) {
-                const imageData = JSON.stringify(imageRow);
-                const imageResult = JSON.parse(imageData);
-                const newProductImage = new ProductImage();
-                newProductImage.productId = saveProduct.productId;
-                newProductImage.image = imageResult.image;
-                newProductImage.containerName = imageResult.containerName;
-                newProductImage.defaultImage = imageResult.defaultImage;
-                await this.productImageService.create(newProductImage);
-            }
-        }
-        await this.productService.create(saveProduct);
-        // Product Discount
-        if (product.productDiscount) {
-            // Delete the product discount
-            this.productDiscountService.delete({ productId: saveProduct.productId });
-            const productDiscount: any = product.productDiscount;
-            const distArr: any = [];
-            for (const discount of productDiscount) {
-                const discountData: any = new ProductDiscount();
-                discountData.productId = saveProduct.productId;
-                if (saveProduct.price <= discount.discountPrice) {
-                    const errorResponse: any = {
-                        status: 0,
-                        message: 'discount price should be less than original price',
-                    };
-                    return response.status(400).send(errorResponse);
-                }
-                discountData.quantity = 1;
-                const skuValue: any = await this.skuService.findOne({
-                    where: {
-                        skuName: discount.skuName,
-                    },
-                });
-                if (skuValue) {
-                    discountData.skuId = skuValue.id;
-                } else {
-                    const errorResponse: any = {
-                        status: 0,
-                        message: 'SKU does not exist in discount price',
-                    };
-                    return response.status(400).send(errorResponse);
-                }
-                discountData.priority = discount.discountPriority;
-                discountData.price = discount.discountPrice;
-                discountData.dateStart = moment(discount.discountDateStart).toISOString();
-                discountData.dateEnd = moment(discount.discountDateEnd).toISOString();
-                distArr.push(discountData);
-            }
-            await this.productDiscountService.create(distArr);
-        }
-
-        // Product Special
-        if (product.productSpecial) {
-            this.productSpecialService.delete({ productId: saveProduct.productId });
-            const productSpecial: any = product.productSpecial;
-            const splArr: any = [];
-            for (const special of productSpecial) {
-                const specialPriceData: any = new ProductSpecial();
-                specialPriceData.productId = saveProduct.productId;
-                if (saveProduct.price <= special.specialPrice) {
-                    const errorResponse: any = {
-                        status: 0,
-                        message: 'special price should be less than original price',
-                    };
-                    return response.status(400).send(errorResponse);
-                }
-                specialPriceData.customerGroupId = special.customerGroupId;
-                const specialSkuValue: any = await this.skuService.findOne({
-                    where: {
-                        skuName: special.skuName,
-                    },
-                });
-                if (specialSkuValue) {
-                    specialPriceData.skuId = specialSkuValue.id;
-                } else {
-                    const errorResponse: any = {
-                        status: 0,
-                        message: 'SKU does not exist in special price',
-                    };
-                    return response.status(400).send(errorResponse);
-                }
-                specialPriceData.priority = special.specialPriority;
-                specialPriceData.price = special.specialPrice;
-                specialPriceData.dateStart = moment(special.specialDateStart).toISOString();
-                specialPriceData.dateEnd = moment(special.specialDateEnd).toISOString();
-                splArr.push(specialPriceData);
-            }
-            await this.productSpecialService.create(splArr);
-        }
-        // product tire price
-        if (product.tirePrices) {
-            await this.productTirePriceService.delete({ productId: saveProduct.productId });
-            const tirePrice: any = product.tirePrices;
-            const tireArr: any = [];
-            for (const tire of tirePrice) {
-                const productTirePrice: any = new ProductTirePrice();
-                productTirePrice.productId = saveProduct.productId;
-                const tireSkuValue: any = await this.skuService.findOne({
-                    where: {
-                        skuName: tire.skuName,
-                    },
-                });
-                if (tireSkuValue) {
-                    productTirePrice.skuId = tireSkuValue.id;
-                } else {
-                    const errorResponse: any = {
-                        status: 0,
-                        message: ' This SKU does not exist',
-                    };
-                    return response.status(400).send(errorResponse);
-                }
-                productTirePrice.quantity = tire.quantity;
-                productTirePrice.price = tire.price;
-                tireArr.push(productTirePrice);
-            }
-            await this.productTirePriceService.create(tireArr);
-        }
-
-        // update product Video
-        const video = product.productVideo;
-        if (video) {
-            await this.productVideoService.delete({ productId: saveProduct.productId });
-            const newProductVideo: any = new ProductVideo();
-            newProductVideo.productId = saveProduct.productId;
-            newProductVideo.name = video.name;
-            newProductVideo.type = video.type;
-            newProductVideo.path = video.path;
-            await this.productVideoService.create(newProductVideo);
-        }
-        const vendorProduct: any = await this.vendorProductService.findOne({
-            where: {
-                productId: id,
-            },
-        });
-        vendorProduct.vendorId = product.vendorId;
-        vendorProduct.sku_id = saveSku.id;
-        vendorProduct.vendorProductCommission = product.vendorProductCommission ? product.vendorProductCommission : 0;
-        await this.vendorProductService.create(vendorProduct);
-        if (saveProduct) {
-            const successResponse: any = {
-                status: 1,
-                message: 'Successfully updated the seller product',
-            };
-            return response.status(200).send(successResponse);
-        } else {
-            const errorResponse: any = {
-                status: 0,
-                message: 'Unable to update the seller product.',
             };
             return response.status(400).send(errorResponse);
         }
@@ -1239,23 +815,6 @@ export class VendorAdminProductController {
             const results = Promise.all(category);
             return results;
         });
-        productDetails.productSpecialPrice = await this.productSpecialService.findAll({
-            select: ['productSpecialId', 'priority', 'price', 'dateStart', 'dateEnd', 'skuId'],
-            where: { productId: id },
-        }).then((val) => {
-            const special = val.map(async (value: any) => {
-                const skuNames = await this.skuService.findOne({ id: value.skuId });
-                const temp: any = value;
-                if (skuNames !== undefined) {
-                    temp.skuName = skuNames.skuName;
-                } else {
-                    temp.skuName = '';
-                }
-                return temp;
-            });
-            const results = Promise.all(special);
-            return results;
-        });
         productDetails.productDiscountData = await this.productDiscountService.findAll({
             select: ['productDiscountId', 'quantity', 'priority', 'price', 'dateStart', 'dateEnd', 'skuId'],
             where: { productId: id },
@@ -1443,13 +1002,6 @@ export class VendorAdminProductController {
         worksheet1.getCell('F1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
         worksheet1.getCell('G1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
         const special = [];
-        for (const vendorSpecial of vendorProductLists) {
-            const specialPrices = await this.productSpecialService.findAll({ where: { productId: vendorSpecial.productId } });
-            for (const specialPrice of specialPrices) {
-                const productName = await this.productService.findOne({ where: { productId: specialPrice.productId } });
-                special.push([specialPrice.productSpecialId, specialPrice.productId, productName.name, specialPrice.priority, specialPrice.price, specialPrice.dateStart, specialPrice.dateEnd]);
-            }
-        }
         // Add all rows data in sheet
         worksheet1.addRows(special);
         const worksheet2 = workbook.addWorksheet('discount price');
@@ -1656,14 +1208,6 @@ export class VendorAdminProductController {
         worksheet1.getCell('F1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
         worksheet1.getCell('G1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
         const special = [];
-        // const productid: any = productId.split(',');
-        for (const products of productIds) {
-            const specialPrices = await this.productSpecialService.findAll({ where: { productId: products } });
-            for (const specialPrice of specialPrices) {
-                const productName = await this.productService.findOne({ where: { productId: specialPrice.productId } });
-                special.push([specialPrice.productSpecialId, specialPrice.productId, productName.name, specialPrice.priority, specialPrice.price, specialPrice.dateStart, specialPrice.dateEnd]);
-            }
-        }
         // Add all rows data in sheet
         worksheet1.addRows(special);
         const worksheet2 = workbook.addWorksheet('discount price');

@@ -9,13 +9,10 @@ import { ProductImage } from './ProductImage';
 import { CustomerWishlist } from './CustomerWishlist';
 import { OrderProduct } from './OrderProduct';
 import { OrderProductLog } from './OrderProductLog';
-import { CustomerCart } from './CustomerCart';
 import { ProductTirePrice } from './ProductTirePrice';
 import { VendorProducts } from './VendorProducts';
 import { Sku } from './SkuModel';
 import { ProductViewLog } from './productViewLog';
-import { ProductSpecial } from './ProductSpecial';
-import { ProductDiscount } from './ProductDiscount';
 import { ProductVideo } from './ProductVideo';
 import { ProductTranslation } from './ProductTranslation';
 import { Auction } from './AuctionModel';
@@ -220,15 +217,6 @@ export class Product extends BaseModel {
 
     @OneToMany(type => OrderProductLog, orderProductLog => orderProductLog.product)
     public orderProductLog: OrderProductLog[];
-
-    @OneToMany(type => CustomerCart, customerCart => customerCart.product)
-    public cart: OrderProductLog[];
-
-    @OneToMany(type => ProductSpecial, productSpecial => productSpecial.product)
-    public productSpecial: ProductSpecial[];
-
-    @OneToMany(type => ProductDiscount, productDiscount => productDiscount.product)
-    public productDiscount: ProductDiscount[];
 
     @OneToMany(type => ProductTirePrice, productTirePrice => productTirePrice.product)
     public productTirePrice: ProductTirePrice[];

@@ -12,8 +12,6 @@ import { VendorOrderLogService } from '../../core/services/VendorOrderLogService
 import { VendorProductService } from '../../core/services/VendorProductService';
 import { VendorOrderLog } from '../../core/models/VendorOrderLog';
 import { PdfService } from '../../core/services/PdfService';
-import { CountryService } from '../../core/services/CountryService';
-import { ZoneService } from '../../core/services/zoneService';
 import { S3Service } from '../../core/services/S3Service';
 import { ImageService } from '../../core/services/ImageService';
 import { SettingService } from '../../core/services/SettingService';
@@ -63,8 +61,6 @@ export class VendorOrderController {
         private vendorOrderLogService: VendorOrderLogService,
         private productService: ProductService,
         private pdfService: PdfService,
-        private countryService: CountryService,
-        private zoneService: ZoneService,
         private s3Service: S3Service,
         private vendorOrderArchiveLogService: VendorOrderArchiveLogService,
         private vendorOrderArchiveService: VendorOrderArchiveService,
@@ -1551,11 +1547,9 @@ export class VendorOrderController {
         const limit = 1;
         const settings: any = await this.settingService.list(limit, select, relation, WhereConditions);
         const settingDetails = settings[0];
-        const countryData: any = await this.countryService.findOne({ where: { countryId: settingDetails.countryId } });
-        const zoneData: any = await this.zoneService.findOne({ where: { zoneId: settingDetails.zoneId } });
         orderData.settingDetails = settingDetails;
-        orderData.zoneData = (zoneData !== undefined) ? zoneData : ' ';
-        orderData.countryData = (countryData !== undefined) ? countryData : ' ';
+        orderData.zoneData = ' ';
+        orderData.countryData = ' ';
         orderData.shippingFirstname = order.shippingFirstname;
         orderData.shippingLastname = order.shippingLastname;
         orderData.shippingAddress1 = order.shippingAddress1;
@@ -3495,8 +3489,7 @@ export class VendorOrderController {
             return results;
         });
         const settings: any = await this.settingService.findOne();
-        const country = await this.countryService.findOne({ select: ['name'], where: { countryId: vendor.companyCountryId } });
-        vendor.countryName = country ? country.name : '';
+        vendor.countryName = '';
         orderData.vendor = vendor;
         const settingDetails = settings;
         orderData.symbolLeft = order.currencySymbolLeft;
@@ -4033,8 +4026,6 @@ export class VendorOrderController {
             return results;
         });
         const settings: any = await this.settingService.findOne();
-        const country = await this.countryService.findOne({ select: ['name'], where: { countryId: vendor.companyCountryId } });
-        vendor.countryName = country ? country.name : '';
         orderData.vendor = vendor;
         const settingDetails = settings;
         orderData.symbolLeft = order.currencySymbolLeft;

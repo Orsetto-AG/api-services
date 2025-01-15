@@ -22,7 +22,6 @@ import { VendorCategory } from './VendorCategory';
 import { VendorGroup } from '../models/VendorGroup';
 import { VendorContact } from './VendorContact';
 import { Industry } from './Industry';
-import { Country } from './Country';
 import { VendorMedia } from './VendorMedia';
 
 export enum KycStatus {
@@ -279,10 +278,6 @@ export class Vendor extends BaseModel {
     @ManyToOne(type => Industry, industry => industry)
     @JoinColumn({ name: 'industry_id' })
     public industry: Industry;
-
-    @ManyToOne(type => Country, country => country)
-    @JoinColumn({ name: 'company_country_id' })
-    public country: Country;
 
     @OneToMany(type => VendorProducts, vendorproducts => vendorproducts.vendor)
     public vendorProducts: VendorProducts[];

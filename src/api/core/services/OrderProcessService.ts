@@ -8,7 +8,6 @@ import { Order } from '../models/Order';
 import { OrderProduct } from '../models/OrderProduct';
 import { PaymentItems } from '../models/PaymentItems';
 import { Product } from '../models/ProductModel';
-import { CustomerCart } from '../models/CustomerCart';
 import { Settings } from '../models/Setting';
 import { User } from '../models/User';
 import { Payment as Payments } from '../models/Payment';
@@ -43,7 +42,6 @@ export class OrderProcessService {
         const userRepository = getManager().getRepository(User);
         const paymentRepository = getManager().getRepository(Payments);
         const paymentItemsRepository = getManager().getRepository(PaymentItems);
-        const CustomerCartRepository = getManager().getRepository(CustomerCart);
         const vendorPaymentRepository = getManager().getRepository(VendorPayment);
         const VendorProductsRepository = getManager().getRepository(VendorProducts);
         const VendorRepository = getManager().getRepository(Vendor);
@@ -113,10 +111,6 @@ export class OrderProcessService {
             productImageData.productInformationData = productInformation;
             productImageData.productImage = productImageDetail;
             productDetailData.push(productImageData);
-            const cart = await CustomerCartRepository.findOne({ where: { productId: orderProduct[i].productId, customerId: orderData.customerId } });
-            if (cart !== undefined) {
-                await CustomerCartRepository.delete(cart.id);
-            }
         }
         const emailContent = await EmailTemplateRepository.findOne(5);
         const adminEmailContent = await EmailTemplateRepository.findOne(6);

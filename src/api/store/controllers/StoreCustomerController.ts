@@ -26,21 +26,17 @@ import { CustomerLoginRequest } from "./requests/CustomerLoginRequest";
 import jwt from "jsonwebtoken";
 import { env } from "../../../env";
 import { SettingService } from "../../core/services/SettingService";
-import { CurrencyService } from "../../core/services/CurrencyService";
 import { AccessToken } from "../../core/models/AccessTokenModel";
 import { AccessTokenService } from "../../core/services/AccessTokenService";
 import moment from "moment";
-import { getVendorProfile } from "@orsettocommerce/marketplace";
-import { getConnection } from "typeorm";
 import { Vendor } from "../../core/models/Vendor";
 import { MailChangeRequest } from "./requests/MailChangeRequest";
-import { CheckDisplayNameRequest } from "./requests/CheckDisplayNameRequest";
 import { RegistrationOtp } from "../../../common/entities-index";
-import { VendorMediaService } from "../../core/services/VendorMediaService";
 import { RegistrationOtpService } from "../../core/services/RegistrationOtpService";
 import { UserService } from "../../core/services/UserService";
 import { OtpValidationRequest } from "./requests/OtpValidationRequest";
 import { ResetPasswordRequest } from "./requests/ResetPasswordRequest";
+import { ProfileCompleteRequest } from "./requests/ProfileCompleteRequest";
 
 @JsonController("/customer")
 export class StoreCustomerController {
@@ -50,15 +46,12 @@ export class StoreCustomerController {
     private emailTemplateService: EmailTemplateService,
     private loginLogService: LoginLogService,
     private settingService: SettingService,
-    private currencyService: CurrencyService,
     private accessTokenService: AccessTokenService,
-    private vendorMediaService: VendorMediaService,
     private registrationOtpService: RegistrationOtpService,
     private userService: UserService
   ) {}
 
-  private async sendOtp(emailId: string, isCompany: boolean): Promise<number> {
-    const userType = isCompany ? 2 : 1;
+  private async sendOtp(emailId: string): Promise<number> {
     const customer = await this.customerService.findOne({
       where: { email: emailId, deleteFlag: 0, isActive: 1 },
     });
@@ -71,7 +64,7 @@ export class StoreCustomerController {
       }
     }
     const otp = await this.registrationOtpService.findOne({
-      where: { emailId, userType: userType },
+      where: { emailId },
     });
     if (otp) {
       await this.registrationOtpService.delete(otp.id);
@@ -81,7 +74,7 @@ export class StoreCustomerController {
 
     const newUserOtp = new RegistrationOtp();
     newUserOtp.emailId = emailId;
-    newUserOtp.userType = userType;
+    newUserOtp.userType = 1;
     newUserOtp.otp = random;
     newUserOtp.createdDate = moment()
       .add(24, "h")
@@ -95,8 +88,8 @@ export class StoreCustomerController {
     const templateDate = findEmailTemplate.content
       .replace("{3}", createUserOTP.otp)
       .replace("{appName}", logo.siteName)
-      .replace("{type}", isCompany ? "Company" : "Customer")
-      .replace("{type}", isCompany ? "Company" : "Customer")
+      .replace("{type}", "Customer")
+      .replace("{type}", "Customer")
       .replace("{siteName}", logo.siteName)
       .replace("{duration}", 24);
     const mailContent: any = {};
@@ -128,7 +121,7 @@ export class StoreCustomerController {
    * @apiGroup Customer
    * @apiParam (Request body) {String{8..128}} password Customer Password
    * @apiParam (Request body) {String{..96}} emailId Vendor Email Id
-   * @apiParam (Request body) {Boolean} isCompany Customer or Company
+   * @apiParam (Request body) {Boolean} isAcceptedTermAndConditions Term and Conditions Accepted status
    *
    *
    * @apiSampleRequest /api/customer/register
@@ -139,9 +132,15 @@ export class StoreCustomerController {
   @Post("/register")
   public async register(
     @Body({ validate: true }) registerParam: RegisterRequest,
-    @Req() request: any,
     @Res() response: any
   ): Promise<any> {
+    if (!registerParam.isAcceptedTermAndConditions) {
+      const errResponse: any = {
+        status: 1,
+        message: "Please accept our terms and conditions.",
+      };
+      return response.status(400).send(errResponse);
+    }
     // Email Validation
     const resultUser = await this.customerService.findOne({
       where: {
@@ -159,7 +158,6 @@ export class StoreCustomerController {
         const otp = await this.registrationOtpService.findOne({
           where: {
             emailId: registerParam.emailId,
-            userType: registerParam.isCompany ? 2 : 1,
           },
         });
         if (otp) {
@@ -171,10 +169,7 @@ export class StoreCustomerController {
                 "Your OTP verification period has expired. We have sent you a new e-mail, please verify the OTP.",
             };
             await this.registrationOtpService.delete(otp.id);
-            await this.sendOtp(
-              registerParam.emailId,
-              registerParam.isCompany ?? false
-            );
+            await this.sendOtp(registerParam.emailId);
             return response.status(400).send(failedResponse);
           } else {
             const failedResponse: any = {
@@ -193,17 +188,14 @@ export class StoreCustomerController {
       return response.status(400).send(failedResponse);
     } else {
       //create a customer
-      const setting = await this.settingService.findOne();
       const newCustomer = new Customer();
-      newCustomer.firstName = "";
-      newCustomer.lastName = "";
-      newCustomer.username = registerParam.emailId;
+      newCustomer.firstName = null;
+      newCustomer.username = null;
       newCustomer.email = registerParam.emailId;
       newCustomer.isActive = 0;
-      newCustomer.isCompleted = false;
-      newCustomer.isCompany = registerParam.isCompany;
+      newCustomer.isCompany = false;
       newCustomer.deleteFlag = 0;
-      newCustomer.siteId = setting.settingsId;
+      newCustomer.isAcceptedTermAndConditions = true;
       const customerPassword = await Customer.hashPassword(
         registerParam.password
       );
@@ -215,10 +207,7 @@ export class StoreCustomerController {
       const notMadateContent = notMandateEmail.content
         .replace("{email}", registerParam.emailId)
         .replace("{siteName}", logo.siteName)
-        .replace(
-          "{userType}",
-          registerParam.isCompany ? "Company" : "Customer"
-        );
+        .replace("{userType}", "Customer");
       const notMandateVenMailContents: any = {};
       notMandateVenMailContents.logo = logo;
       const redirectUrl1 = env.vendorRedirectUrl;
@@ -230,10 +219,7 @@ export class StoreCustomerController {
         registerParam.emailId,
         notMandateEmail.subject
           .replace("{siteName}", logo.siteName)
-          .replace(
-            "{userType}",
-            registerParam.isCompany ? "Company" : "Customer"
-          ),
+          .replace("{userType}", "Customer"),
         false,
         false,
         ""
@@ -250,14 +236,8 @@ export class StoreCustomerController {
         const val = user.username;
         adminIds.push(val);
       }
-      let userTypeMsg: string | undefined;
-      if (registerParam.isCompany) {
-        userTypeMsg = "A company registration has been made.";
-      } else {
-        userTypeMsg = "A customer registration has been made.";
-      }
       const admincusMessages = emailContentAdmins.content
-        .replace("{userType}", userTypeMsg)
+        .replace("{userType}", "A customer registration has been made.")
         .replace("{name}", "Admin")
         .replace("{email}", registerParam.emailId)
         .replace("{siteName}", logo.siteName)
@@ -278,10 +258,7 @@ export class StoreCustomerController {
       );
 
       //send otp message for customer mail
-      await this.sendOtp(
-        registerParam.emailId,
-        registerParam.isCompany ?? false
-      );
+      await this.sendOtp(registerParam.emailId);
 
       return response.status(200).send({
         status: saveCustomer.status ?? 1,
@@ -340,10 +317,7 @@ export class StoreCustomerController {
                 "Your OTP verification period has expired. We have sent you a new e-mail, please verify the OTP.",
             };
             await this.registrationOtpService.delete(otpInfo.id);
-            await this.sendOtp(
-              otpValidationParam.emailId,
-              resultUser.isCompany ?? false
-            );
+            await this.sendOtp(otpValidationParam.emailId);
             return response.status(400).send(failedResponse);
           } else {
             // exist
@@ -353,6 +327,7 @@ export class StoreCustomerController {
               await this.registrationOtpService.delete(otpInfo.id);
 
               resultUser.isActive = 1;
+              resultUser.isCompletedEmailOtpVerification = true;
               const updateUserData = await this.customerService.update(
                 resultUser.id,
                 resultUser
@@ -366,10 +341,7 @@ export class StoreCustomerController {
                 };
                 return response.status(200).send(successResponse);
               } else {
-                await this.sendOtp(
-                  otpValidationParam.emailId,
-                  resultUser.isCompany ?? false
-                );
+                await this.sendOtp(otpValidationParam.emailId);
                 throw new InternalServerError(
                   "A technical error occurred, please try again."
                 );
@@ -404,37 +376,6 @@ export class StoreCustomerController {
    * @apiGroup Customer
    * @apiParam (Request body) {String} emailId User Email Id
    * @apiParam (Request body) {String} password User Password
-   * @apiParamExample {json} Input
-   * {
-   *      "emailId" : "",
-   *      "password" : "",
-   * }
-   * @apiSuccessExample {json} Success
-   * HTTP/1.1 200 OK
-   * {
-   *        "data": "{
-   *         "token":'',
-   *         "user": {
-   *          "id": 1,
-   *          "firstName": "",
-   *          "email": "",
-   *          "mobileNumber": "",
-   *          "avatar": "",
-   *          "avatarPath": "",
-   *          "vendorId": 1,
-   *          "vendorPrefixId": 1,
-   *          "currencyCode": "",
-   *          "currencySymbolLeft": "",
-   *          "currencySymbolRight": "",
-   *          "lastName": "",
-   *          "username": ""
-   *             }
-   *                }
-   *                 }
-   *              }",
-   *        "message": "Successfully loggedIn",
-   *        "status": "1"
-   *         }
    * @apiSampleRequest /api/customer/login
    * @apiErrorExample {json} Login error
    * HTTP/1.1 500 Internal Server Error
@@ -447,46 +388,14 @@ export class StoreCustomerController {
     @Res() response: any
   ): Promise<any> {
     const resultData = await this.customerService.findOne({
-      select: [
-        "id",
-        "firstName",
-        "email",
-        "mobileNumber",
-        "password",
-        "avatar",
-        "avatarPath",
-        "isActive",
-        "isCompany",
-        "isCompleted"
-      ],
       where: { email: loginParam.emailId },
     });
-    if (!resultData?.isActive) {
+    if (!resultData?.isActive || !resultData?.isCompletedEmailOtpVerification) {
       const errorUserNameResponse: any = {
         status: 0,
         message: "Please completed OTP step.",
       };
       return response.status(400).send(errorUserNameResponse);
-    }
-    if (resultData === undefined) {
-      const notFountResponse: any = {
-        status: 0,
-        message: "Invalid Username",
-        data: 1,
-      };
-      return response.status(400).send(notFountResponse);
-    }
-
-    const setting = await this.settingService.findOne();
-    if (setting) {
-      const currencyVal = await this.currencyService.findOne(
-        setting.storeCurrencyId
-      );
-      if (currencyVal) {
-        resultData.currencyCode = currencyVal.code;
-        resultData.currencySymbolLeft = currencyVal.symbolLeft;
-        resultData.currencySymbolRight = currencyVal.symbolRight;
-      }
     }
 
     if (await Customer.comparePassword(resultData, loginParam.password)) {
@@ -498,22 +407,26 @@ export class StoreCustomerController {
           expiresIn: env.jwtExpiryTime.toString(),
         }
       );
-      const loginLog = new LoginLog();
-      loginLog.customerId = resultData.id;
-      loginLog.emailId = resultData.email;
-      loginLog.firstName = resultData.firstName;
-      loginLog.ipAddress = (
-        request.headers["x-forwarded-for"] ||
-        request.connection.remoteAddress ||
-        request.socket.remoteAddress ||
-        request.connection.socket.remoteAddress
-      ).split(",")[0];
-      const savedloginLog = await this.loginLogService.create(loginLog);
-      const customer = await this.customerService.findOne({
-        where: { email: loginParam.emailId, deleteFlag: 0 },
-      });
-      customer.lastLogin = savedloginLog.createdDate;
-      await this.customerService.create(customer);
+
+      (async () => {
+        const loginLog = new LoginLog();
+        loginLog.customerId = resultData.id;
+        loginLog.emailId = resultData.email;
+        loginLog.firstName = resultData.firstName;
+        loginLog.ipAddress = (
+          request.headers["x-forwarded-for"] ||
+          request.connection.remoteAddress ||
+          request.socket.remoteAddress ||
+          request.connection.socket.remoteAddress
+        ).split(",")[0];
+        const savedLoginLog = await this.loginLogService.create(loginLog);
+        const customer = await this.customerService.findOne({
+          where: { email: loginParam.emailId, deleteFlag: 0 },
+        });
+        customer.lastLogin = savedLoginLog.createdDate;
+        await this.customerService.create(customer);
+      })();
+
       const Crypto = require("crypto-js");
       const ciphertextToken = Crypto.AES.encrypt(
         token,
@@ -526,11 +439,7 @@ export class StoreCustomerController {
         newToken.userType = "customer";
         await this.accessTokenService.create(newToken);
       }
-      resultData.email = "";
-      resultData.firstName = "";
-      resultData.lastName = "";
-      resultData.mobileNumber = "";
-      resultData.username = "";
+
       const successResponse: any = {
         status: 1,
         message: "Logged In successfully",
@@ -543,169 +452,185 @@ export class StoreCustomerController {
     }
     const errorResponse: any = {
       status: 0,
-      message: "Wrong Password",
-      data: 2,
+      message: "Invalid email or password please try again.",
     };
     return response.status(400).send(errorResponse);
   }
 
-  // Get vendor profile API
+  // Me API
   /**
-   * @api {Get} /api/customer/vendor-profile Vendor Get Profile  API
-   * @apiGroup  Vendor
-   * @apiHeader {String} Authorization
-   * @apiSuccessExample {json} Success
-   * HTTP/1.1 200 OK
-   * {
-   *  "status": "1"
-   *  "message": "successfully got Vendor profile.",
-   *  "data": {
-   *   "createdBy": 1,
-   *   "createdDate": "",
-   *   "modifiedBy": 1,
-   *   "modifiedDate": "",
-   *   "vendorId": 1,
-   *   "vendorPrefixId": 1,
-   *   "customerId": 1,
-   *   "vendorGroupId": 1,
-   *   "commission": "",
-   *   "industryId": 1,
-   *   "contactPersonName": "",
-   *   "vendorSlugName": "",
-   *   "designation": "",
-   *   "companyName": "",
-   *   "companyLocation": "",
-   *   "companyAddress1": "",
-   *   "companyAddress2": "",
-   *   "companyCity": "",
-   *   "companyState": "",
-   *   "zoneId": 1,
-   *   "companyCountryId": 1,
-   *   "pincode": "",
-   *   "companyDescription": "",
-   *   "companyMobileNumber": "",
-   *   "companyEmailId": 1,
-   *   "companyWebsite": "",
-   *   "companyTaxNumber": "",
-   *   "companyPanNumber": "",
-   *   "companyLogo": "",
-   *   "companyLogoPath": "",
-   *   "paymentInformation": "",
-   *   "verification": {
-   *       "email": "",
-   *       "policy": "",
-   *       "category": "",
-   *       "decision": "",
-   *       "document": "",
-   *       "storeFront": "",
-   *       "bankAccount": "",
-   *       "paymentInfo": "",
-   *       "companyDetail": "",
-   *       "deliveryMethod": "",
-   *       "subscriptionPlan": "",
-   *       "distributionPoint": ""
-   *    },
-   *    "verificationComment": [],
-   *    "verificationDetailComment": [],
-   *    "bankAccount": {
-   *       "bic": "",
-   *       "ifsc": "",
-   *       "branch": "",
-   *       "bankName": "",
-   *       "accountNumber": "",
-   *       "accountCreatedOn": ""
-   *     },
-   *    "approvalFlag": "",
-   *    "approvedBy": "",
-   *    "approvalDate": "",
-   *    "companyCoverImage": "",
-   *    "companyCoverImagePath": "",
-   *    "displayNameUrl": "",
-   *    "instagram": "",
-   *    "twitter": "",
-   *    "youtube": "",
-   *    "facebook": "",
-   *    "whatsapp": "",
-   *    "bankName": "",
-   *    "bankAccountNumber": "",
-   *    "accountHolderName": "",
-   *    "ifscCode": "",
-   *    "businessSegment": "",
-   *    "businessType": "",
-   *    "mailOtp": "",
-   *    "loginOtpExpireTime": "",
-   *    "businessNumber": "",
-   *    "preferredShippingMethod": "",
-   *    "capabilities": [
-   *       {
-   *           "data": "",
-   *           "status": 1
-   *       }
-   *       ],
-   *    "vendorDescription": "",
-   *    "isEmailVerify": "",
-   *    "customerDetail": {
-   *       "firstName": "",
-   *       "lastName": "",
-   *       "email": "",
-   *       "mobileNumber": "",
-   *       "avatar": "",
-   *       "avatarPath": "",
-   *       "isActive": 1,
-   *       "dob": "",
-   *       "gender": ""
-   *    },
-   *    "countryName": "",
-   *    "vendorCategories": [],
-   *    "vendorMedia": [
-   *       {
-   *           "createdBy": 1,
-   *           "createdDate": "",
-   *           "modifiedBy": 1,
-   *           "modifiedDate": "",
-   *           "id": 1,
-   *           "vendorId": 1,
-   *           "fileName": "",
-   *           "filePath": "",
-   *           "mediaType": "",
-   *           "defaultImage": "",
-   *           "videoType": "",
-   *           "sortOrder": "",
-   *           "showHomePage": "",
-   *           "url": "",
-   *           "title": "",
-   *           "isActive": 1,
-   *           "isDelete": 1
-   *         },
-   * }
-   * @apiSampleRequest /api/customer/vendor-profile
-   * @apiErrorExample {json} vendor error
+   * @api {Post} /api/customer/me Login API
+   * @apiGroup Customer
+   * @apiSampleRequest /api/customer/me
+   * @apiErrorExample {json} Login error
    * HTTP/1.1 500 Internal Server Error
    */
-  @Get("/vendor-profile")
-  @Authorized("vendor-unapproved")
-  public async vendorDetails(
+  // Me Function
+  @Get("/me")
+  @Authorized("customer")
+  public async me(@Req() request: any, @Res() response: any): Promise<any> {
+    const resultData: Customer = await this.customerService.findOne({
+      where: {
+        id: request.user.id,
+        isActive: 1,
+        isCompletedEmailOtpVerification: 1,
+        deleteFlag: 0,
+      },
+    });
+
+    if (!resultData) {
+      const errorResponse: any = {
+        status: 0,
+        message: "Customer not found.",
+      };
+      return response.status(404).send(errorResponse);
+    }
+
+    const successResponse: any = {
+      status: 1,
+      message: "successfully",
+      data: {
+        user: instanceToPlain(resultData),
+      },
+    };
+    return response.status(200).send(successResponse);
+  }
+
+  // Complete Profile API
+  /**
+   * @api {Post} /api/customer/complete-profile Complete Profile API
+   * @apiGroup Customer
+   * @apiSampleRequest /api/customer/complete-profile
+   * @apiErrorExample {json} Complete Profile error
+   * HTTP/1.1 500 Internal Server Error
+   */
+  // Complete Profile Function
+  @Put("/complete-profile")
+  @Authorized("customer")
+  public async completeProfile(
+    @Body({ validate: true }) profileCompleteParam: ProfileCompleteRequest,
     @Req() request: any,
     @Res() response: any
   ): Promise<any> {
-    const vendorDetail = await getVendorProfile(getConnection(), {
-      vendorId: request.user.vendorId,
+    const resultData: Customer = await this.customerService.findOne({
+      where: {
+        id: request.user.id,
+        isActive: 1,
+        isCompletedEmailOtpVerification: 1,
+        deleteFlag: 0,
+      },
     });
-    const customerInfo = await this.customerService.findOne({
-      where: { id: vendorDetail.data.customerId },
-    });
-    vendorDetail.data.customerDetail.dob = customerInfo?.dob ?? "";
-    vendorDetail.data.customerDetail.gender = customerInfo?.gender ?? "";
-    const vendorMedia = await this.vendorMediaService.findAll({
-      where: { vendorId: request.user.vendorId },
-    });
-    vendorDetail.data.vendorMedia = vendorMedia;
+
+    if (!resultData) {
+      const errorResponse: any = {
+        status: 0,
+        message: "Customer not found.",
+      };
+      return response.status(404).send(errorResponse);
+    }
+
+    resultData.gender = profileCompleteParam.personal.gender;
+    resultData.firstName = profileCompleteParam.personal.firstName;
+    resultData.lastName = profileCompleteParam.personal.lastName;
+    resultData.username =
+      resultData.firstName +
+      "-" +
+      resultData.lastName +
+      "-" +
+      (Math.floor(Math.random() * 100000000) + 1).toString();
+    resultData.birthday = profileCompleteParam.personal.birthday;
+    resultData.street = profileCompleteParam.personal.street;
+    resultData.streetNumber = profileCompleteParam.personal.streetNumber;
+    resultData.zipCode = profileCompleteParam.personal.zipCode;
+    resultData.city = profileCompleteParam.personal.city;
+    resultData.country = profileCompleteParam.personal.country;
+    resultData.otherAddressInfo =
+      profileCompleteParam.personal.otherAddressInfo ?? null;
+
+    resultData.isCompletedPersonalInfo = true;
+
+    if (profileCompleteParam?.company) {
+      if (
+        profileCompleteParam.company.isVatChargeable &&
+        !profileCompleteParam.company?.vatNumber
+      )
+        throw new BadRequestError(
+          "VAT number is required when the company is VAT chargeable."
+        );
+
+      if (
+        profileCompleteParam.company.isTradeRegistered &&
+        !profileCompleteParam.company?.tradeRegisteredNumber
+      )
+        throw new BadRequestError(
+          "Trade registered number is required when the company is trade registered."
+        );
+
+      if (
+        !profileCompleteParam.company.isRegisterOwner &&
+        !profileCompleteParam.company?.registerPersonName
+      ) {
+        throw new BadRequestError(
+          "Register person name is required when the company is not the register owner."
+        );
+      }
+
+      if (
+        !profileCompleteParam.company.isRegisterOwner &&
+        !profileCompleteParam.company?.registerPersonSurname
+      ) {
+        throw new BadRequestError(
+          "Register person surname is required when the company is not the register owner."
+        );
+      }
+
+      if (
+        !profileCompleteParam.company.isRegisterOwner &&
+        !profileCompleteParam.company?.registerPersonSex
+      ) {
+        throw new BadRequestError(
+          "Register person sex is required when the company is not the register owner."
+        );
+      }
+
+      resultData.isCompany = true;
+      resultData.isCompletedCompanyInfo = true;
+      resultData.companyName = profileCompleteParam.company.companyName;
+      resultData.isVatChargeable =
+        profileCompleteParam.company.isVatChargeable ?? null;
+      resultData.vatNumber = profileCompleteParam.company.vatNumber ?? null;
+      resultData.isTradeRegistered =
+        profileCompleteParam.company.isTradeRegistered ?? null;
+      resultData.tradeRegisteredNumber =
+        profileCompleteParam.company.tradeRegisteredNumber ?? null;
+      resultData.isRegisterOwner =
+        profileCompleteParam.company.isRegisterOwner ?? null;
+      resultData.registerPersonName =
+        profileCompleteParam.company.registerPersonName ?? null;
+      resultData.registerPersonSurname =
+        profileCompleteParam.company.registerPersonSurname ?? null;
+      resultData.registerPersonSex =
+        profileCompleteParam.company.registerPersonSex ?? null;
+    }
+    const updateUserData = await this.customerService.update(
+      resultData.id,
+      resultData
+    );
+
+    if (updateUserData) {
+      const successResponse: any = {
+        status: 1,
+        message: "Your profile updated successfully",
+      };
+      return response.status(200).send(successResponse);
+    }
+
     const successResponse: any = {
       status: 1,
-      message: "successfully got seller profile",
-      data: vendorDetail.data,
+      message:
+        "A general error has occurred in the system, please try again later.",
     };
-    return response.status(200).send(successResponse);
+    return response.status(500).send(successResponse);
   }
 
   // Change Password API
@@ -1177,88 +1102,5 @@ export class StoreCustomerController {
       status: 1,
       message: "Email Send Successfuly",
     });
-  }
-
-  // Check Vendor Display Name API
-  /**
-   * @api {Post} /api/customer/check-display-name-url Check Vendor Display Name API
-   * @apiGroup Admin vendor
-   * @apiHeader {String} Authorization
-   * @apiParam (Request body) {Number} vendorId
-   * @apiParam (Request body) {String} displayNameURL  Display Name / URL
-   * @apiParamExample {json} Input
-   * {
-   *      "vendorId": 1,
-   *      "displayNameURL" : "",
-   * }
-   * @apiSuccessExample {json} Success
-   * HTTP/1.1 200 OK
-   * {
-   *      "status": "1"
-   *      "message": "Display name is available",
-   * }
-   * @apiSampleRequest /api/customer/check-display-name-url
-   * @apiErrorExample {json}checkDisplayNameURLadmin vendor error
-   * HTTP/1.1 500 Internal Server Error
-   */
-  @Post("/check-display-name-url")
-  @Authorized("vendor-unapproved")
-  public async checkDisplayNameURL(
-    @Body({ validate: true }) checkname: CheckDisplayNameRequest,
-    @Res() response: any
-  ): Promise<any> {
-    const name = checkname.displayNameURL
-      .replace(/\s+/g, "-")
-      .replace(/[&\/\\@#,+()$~%.'":*?<>{}]/g, "")
-      .toLowerCase();
-    if (checkname.vendorId) {
-      const checkVendor = await this.vendorService.findOne({
-        where: {
-          vendorId: checkname.vendorId,
-        },
-      });
-      if (!checkVendor) {
-        const errorResponse: any = {
-          status: 0,
-          message: "Invalid seller",
-        };
-        return response.status(400).send(errorResponse);
-      }
-      const isExist = await this.vendorService.validateDisplayUrlName(
-        name,
-        1,
-        checkname.vendorId
-      );
-      if (isExist) {
-        return response.status(400).send({
-          status: 0,
-          message: "Display name already exists",
-        });
-      } else {
-        return response.status(200).send({
-          status: 1,
-          message: "Display name available",
-        });
-      }
-    } else {
-      const isExist = await this.vendorService.validateDisplayUrlName(
-        name,
-        0,
-        0
-      );
-      if (isExist) {
-        const errorResponse: any = {
-          status: 0,
-          message: "Display name already exists",
-        };
-        return response.status(400).send(errorResponse);
-      } else {
-        const successResponse: any = {
-          status: 1,
-          message: "Display name available",
-        };
-        return response.status(200).send(successResponse);
-      }
-    }
   }
 }

@@ -18,7 +18,6 @@ import { ProductToCategoryService } from '../../core/services/ProductToCategoryS
 import { ProductImageService } from '../../core/services/ProductImageService';
 import { Product } from '../../core/models/ProductModel';
 import { ProductDiscount } from '../../core/models/ProductDiscount';
-import { ProductSpecial } from '../../core/models/ProductSpecial';
 import { instanceToPlain } from 'class-transformer';
 import { DeleteProductRequest } from './requests/DeleteProductRequest';
 import { AddProductRequest } from './requests/CreateProductRequest';
@@ -33,7 +32,6 @@ import { UpdateStockRequest } from './requests/UpdateStockRequest';
 import { CreateTirePriceRequest } from './requests/CreateTirePriceRequest';
 import { ProductViewLogService } from '../../core/services/ProductViewLogService';
 import { ProductDiscountService } from '../../core/services/ProductDiscountService';
-import { ProductSpecialService } from '../../core/services/ProductSpecialService';
 import moment = require('moment');
 import { CustomerService } from '../../core/services/CustomerService';
 import fs = require('fs');
@@ -49,7 +47,6 @@ import { ProductVideoService } from '../../core/services/ProductVideoService';
 import { ProductVideo } from '../../core/models/ProductVideo';
 import { VendorService } from '../../core/services/VendorService';
 import { VendorPaymentService } from '../../core/services/VendorPaymentService';
-import { CustomerCartService } from '../../core/services/CustomerCartService';
 import { pluginModule } from '../../../loaders/pluginLoader';
 import { productList, productCreate, excelExportProduct } from '@orsettocommerce/product';
 import { ExportLog } from '../../core/models/ExportLog';
@@ -72,7 +69,6 @@ export class ProductController {
         private orderService: OrderService,
         private productViewLogService: ProductViewLogService,
         private productDiscountService: ProductDiscountService,
-        private productSpecialService: ProductSpecialService,
         private customerService: CustomerService,
         private taxService: TaxService,
         private paymentService: PaymentService,
@@ -84,7 +80,6 @@ export class ProductController {
         private vendorProductService: VendorProductService,
         private vendorServie: VendorService,
         private vendorPaymentService: VendorPaymentService,
-        private customerCartService: CustomerCartService,
         private exportLogService: ExportLogService
     ) {
     }
@@ -603,9 +598,6 @@ export class ProductController {
         }
         const saveProduct = await this.productService.create(updateProduct);
 
-        // delete customerCart
-        this.customerCartService.delete({ productId: product.productId });
-
         // delete previous category
         this.productToCategoryService.delete({ productId: saveProduct.productId });
 
@@ -677,44 +669,7 @@ export class ProductController {
             await this.productDiscountService.create(distArr);
         }
 
-        // Product Special
-        if (product.productSpecial) {
-            this.productSpecialService.delete({ productId: saveProduct.productId });
-            const productSpecial: any = product.productSpecial;
-            const splArr: any = [];
-            for (const special of productSpecial) {
-                const specialPriceData: any = new ProductSpecial();
-                specialPriceData.productId = saveProduct.productId;
-                if (saveProduct.price < special.specialPrice) {
-                    const errorResponse: any = {
-                        status: 0,
-                        message: 'special price should be less than original price.',
-                    };
-                    return response.status(400).send(errorResponse);
-                }
-                specialPriceData.customerGroupId = special.customerGroupId;
-                const specialSkuValue: any = await this.skuService.findOne({
-                    where: {
-                        skuName: special.skuName,
-                    },
-                });
-                if (specialSkuValue) {
-                    specialPriceData.skuId = specialSkuValue.id;
-                } else {
-                    const errorResponse: any = {
-                        status: 0,
-                        message: 'Sku does not exist in special price',
-                    };
-                    return response.status(400).send(errorResponse);
-                }
-                specialPriceData.priority = special.specialPriority;
-                specialPriceData.price = special.specialPrice;
-                specialPriceData.dateStart = moment(special.specialDateStart).toISOString();
-                specialPriceData.dateEnd = moment(special.specialDateEnd).toISOString();
-                splArr.push(specialPriceData);
-            }
-            await this.productSpecialService.create(splArr);
-        }
+        
 
         // Product tire price
         if (product.tirePrices) {
@@ -842,23 +797,6 @@ export class ProductController {
                 return temp;
             });
             const results = Promise.all(category);
-            return results;
-        });
-        productDetails.productSpecialPrice = await this.productSpecialService.findAll({
-            select: ['productSpecialId', 'priority', 'price', 'dateStart', 'dateEnd', 'skuId'],
-            where: { productId: productDetail.productId },
-        }).then((val) => {
-            const special = val.map(async (value: any) => {
-                const skuNames = await this.skuService.findOne({ id: value.skuId });
-                const temp: any = value;
-                if (skuNames !== undefined) {
-                    temp.skuName = skuNames.skuName;
-                } else {
-                    temp.skuName = '';
-                }
-                return temp;
-            });
-            const results = Promise.all(special);
             return results;
         });
         productDetails.productDiscountData = await this.productDiscountService.findAll({
@@ -1695,11 +1633,6 @@ export class ProductController {
         worksheet1.getCell('F1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
         worksheet1.getCell('G1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
         const special = [];
-        const specialPrices = await this.productSpecialService.find();
-        for (const specialPrice of specialPrices) {
-            const productName = await this.productService.findOne({ where: { productId: specialPrice.productId } });
-            special.push([specialPrice.productSpecialId, specialPrice.productId, productName.name, specialPrice.priority, specialPrice.price, specialPrice.dateStart, specialPrice.dateEnd]);
-        }
         // Add all rows data in sheet
         worksheet1.addRows(special);
         const worksheet2 = workbook.addWorksheet('discount price');

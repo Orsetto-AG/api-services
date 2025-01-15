@@ -456,7 +456,6 @@ export class VendorController {
                     message: 'Your OTP Got Expired',
                 });
             }
-            const setting = await this.settingService.findOne();
             const newCustomer = new Customer();
             newCustomer.firstName = registerParam.firstName;
             newCustomer.lastName = registerParam.lastName ?? '';
@@ -464,7 +463,6 @@ export class VendorController {
             newCustomer.email = registerParam.emailId;
             newCustomer.isActive = 1;
             newCustomer.deleteFlag = 0;
-            newCustomer.siteId = setting.settingsId;
             const customerPassword = await Customer.hashPassword(registerParam.password);
             newCustomer.password = customerPassword;
             const saveCustomer = await this.customerService.create(newCustomer);

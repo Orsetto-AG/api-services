@@ -1,178 +1,201 @@
+import {
+  Column,
+  Entity,
+  BeforeInsert,
+  BeforeUpdate,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  OneToOne,
+} from "typeorm";
+import { BaseModel } from "./BaseModel";
+import * as bcrypt from "bcrypt";
+import moment = require("moment/moment");
+import { Exclude } from "class-transformer";
+import { Order } from "./Order";
+import { Vendor } from "./Vendor";
+import { IsNotEmpty } from "class-validator";
+import { ProductViewLog } from "./productViewLog";
+import { ExportLog } from "./ExportLog";
+import { Bid } from "./BidModel";
 
-
-import { Column, Entity, BeforeInsert, BeforeUpdate, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
-import { BaseModel } from './BaseModel';
-import * as bcrypt from 'bcrypt';
-import moment = require('moment/moment');
-import { Exclude } from 'class-transformer';
-import { CustomerGroup } from './CustomerGroup';
-import { Order } from './Order';
-import { Vendor } from './Vendor';
-import { Country } from './Country';
-import { IsNotEmpty } from 'class-validator';
-import { ProductViewLog } from './productViewLog';
-import { CustomerCart } from './CustomerCart';
-import { ExportLog } from './ExportLog';
-import { Bid } from './BidModel';
-
-
-@Entity('customer')
+@Entity("customer")
 export class Customer extends BaseModel {
-    public static hashPassword(password: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            bcrypt.hash(password, 10, (err, hash) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(hash);
-            });
-        });
-    }
+  public static hashPassword(password: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      bcrypt.hash(password, 10, (err, hash) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(hash);
+      });
+    });
+  }
 
-    public static comparePassword(user: Customer, password: string): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            bcrypt.compare(password, user.password, (err, res) => {
-                resolve(res === true);
-            });
-        });
-    }
-    @IsNotEmpty()
-    @PrimaryGeneratedColumn({ name: 'id' })
-    public id: number;
-    @IsNotEmpty()
-    @Column({ name: 'first_name' })
-    public firstName: string;
+  public static comparePassword(
+    user: Customer,
+    password: string
+  ): Promise<boolean> {
+    return new Promise((resolve) => {
+      bcrypt.compare(password, user.password, (err, res) => {
+        resolve(res === true);
+      });
+    });
+  }
 
-    @Column({ name: 'last_name' })
-    public lastName: string;
+  @IsNotEmpty()
+  @PrimaryGeneratedColumn({ name: "id" })
+  public id: number;
+  @IsNotEmpty()
 
-    @Column({ name: 'gender' })
-    public gender: string;
+  //----- REGISTER INFO-----
+  @IsNotEmpty()
+  @Exclude()
+  @Column({ name: "password" })
+  public password: string;
+  @IsNotEmpty()
+  @Column({ name: "email" })
+  public email: string;
 
-    @Column({ name: 'dob' })
-    public dob: string;
+  @Exclude()
+  @Column({ name: "is_accepted_term_and_conditions", default: false })
+  public isAcceptedTermAndConditions: boolean;
+  //------ END REGISTER INFO-----
 
-    @IsNotEmpty()
-    @Column({ name: 'username' })
-    public username: string;
-    @IsNotEmpty()
-    @Exclude()
-    @Column({ name: 'password' })
-    public password: string;
-    @IsNotEmpty()
-    @Column({ name: 'email' })
-    public email: string;
+  //--------PERSONAL INFO -----------
+  @Column({ name: "gender" })
+  public gender: string;
 
-    @Column({ name: 'mobile' })
-    public mobileNumber: number;
+  @Column({ name: "first_name" })
+  public firstName: string;
 
-    @Column({ name: 'address' })
-    public address: string;
+  @Column({ name: "last_name" })
+  public lastName: string;
 
-    @Column({ name: 'country_id' })
-    public countryId: number;
+  @Column({ name: "username" })
+  public username: string;
 
-    @Column({ name: 'zone_id' })
-    public zoneId: number;
+  @Column({ name: "birthday" })
+  public birthday: string;
 
-    @Column({ name: 'city' })
-    public city: string;
+  @Column({ name: "street" })
+  public street: string;
 
-    @Column({ name: 'local' })
-    public local: string;
+  @Column({ name: "street_number" })
+  public streetNumber: string;
 
-    @Column({ name: 'oauth_data' })
-    public oauthData: string;
+  @Column({ name: "zip_code" })
+  public zipCode: string;
 
-    @Column({ name: 'avatar' })
-    public avatar: string;
-    @Exclude()
-    @Column({ name: 'newsletter' })
-    public newsletter: string;
+  @Column({ name: "city" })
+  public city: string;
 
-    @Column({ name: 'avatar_path' })
-    public avatarPath: string;
-    @Exclude()
-    @Column({ name: 'customer_group_id' })
-    public customerGroupId: number;
+  @Column({ name: "country" })
+  public country: string;
 
-    @Column({ name: 'last_login' })
-    public lastLogin: string;
-    @Exclude()
-    @Column({ name: 'safe' })
-    public safe: number;
-    @Exclude()
-    @Column({ name: 'ip' })
-    public ip: number;
-    @Exclude()
-    @Column({ name: 'mail_status' })
-    public mailStatus: number;
-    @Column({ name: 'pincode' })
-    public pincode: string;
-    @Exclude()
-    @Column({ name: 'delete_flag' })
-    public deleteFlag: number;
-    @Exclude()
-    @Column({ name: 'is_active' })
-    public isActive: number;
-    @Exclude()
-    @Column({ name: 'forget_password_key' })
-    public forgetPasswordKey: string;
+  @Column({ name: "other_address_info" })
+  public otherAddressInfo: string;
+  //-------- END PERSONAL INFO -----------
 
-    @Column({ name: 'forget_password_link_expires' })
-    public linkExpires: string;
+  //--------COMPANY INFO -----------
 
-    @Column({ name: 'locked_on' })
-    public lockedOn: string;
+  @Column({ name: "company_name" })
+  public companyName: string;
 
-    @Column({ name: 'site_id' })
-    public siteId: number;
+  @Column({ name: "is_vat_chargeable", default: false })
+  public isVatChargeable: boolean;
 
-    @Column({ default: false , name : 'is_company'})
-    public isCompany: boolean;
+  @Column({ name: "vat_number" })
+  public vatNumber: string;
 
-    @Column({ default: false , name : 'is_completed'})
-    public isCompleted: boolean;
+  @Column({ name: "is_trade_registered", default: false })
+  public isTradeRegistered: boolean;
 
-    @Column({ name: 'address2' })
-    public address2: number;
+  @Column({ name: "trade_registered_number" })
+  public tradeRegisteredNumber: string;
 
-    @Column({ name: 'landmark' })
-    public landmark: string;
+  @Column({ name: "is_register_owner", default: false })
+  public isRegisterOwner: boolean;
 
-    @ManyToOne(type => CustomerGroup, customergroup => customergroup.customer)
-    @JoinColumn({ name: 'customer_group_id' })
-    public customerGroup: CustomerGroup;
+  @Column({ name: "register_person_name" })
+  public registerPersonName: string;
 
-    @ManyToOne(type => Country, country => country.customer)
-    @JoinColumn({ name: 'country_id' })
-    public country: Country;
+  @Column({ name: "register_person_surname" })
+  public registerPersonSurname: string;
 
-    @OneToMany(type => Order, order => order.customer)
-    public order: Order[];
+  @Column({ name: "register_person_sex" })
+  public registerPersonSex: string;
 
-    @OneToOne(type => ExportLog, exportLog => exportLog.user)
-    public exportLog: ExportLog;
+  //--------END COMPANY INFO -----------
 
-    @OneToMany(type => ProductViewLog, productviewlog => productviewlog.customer)
-    public productviewlog: ProductViewLog[];
+  // ------- STATUS INFO--------------------------------
 
-    @OneToMany(type => CustomerCart, customerCart => customerCart.customer)
-    public customerCart: CustomerCart[];
+  @Exclude()
+  @Column({ name: "delete_flag" })
+  public deleteFlag: number;
 
-    @OneToOne(type => Vendor)
-    public vendor: Vendor;
+  @Column({ name: "is_active" })
+  public isActive: number;
 
-    @OneToMany(() => Bid, (bid) => bid.customer)
-    public bids: Bid[];
+  @Column({ default: false, name: "is_company" })
+  public isCompany: boolean;
 
-    @BeforeInsert()
-    public async createDetails(): Promise<void> {
-        this.createdDate = moment().format('YYYY-MM-DD HH:mm:ss');
-    }
+  @Column({ default: false, name: "is_completed_personal_info" })
+  public isCompletedPersonalInfo: boolean;
 
-    @BeforeUpdate()
-    public async updateDetails(): Promise<void> {
-        this.modifiedDate = moment().format('YYYY-MM-DD HH:mm:ss');
-    }
+  @Column({ default: false, name: "is_completed_company_info" })
+  public isCompletedCompanyInfo: boolean;
+
+  @Column({ default: false, name: "is_completed_phone_otp_verification" })
+  public isCompletedPhoneOtpVerification: boolean;
+
+  @Column({ default: false, name: "is_completed_kyc_verification" })
+  public isCompletedKycVerification: boolean;
+
+  @Column({ default: false, name: "is_completed_address_verification" })
+  public isCompletedAddressVerification: boolean;
+
+  @Column({ default: false, name: "is_completed_email_otp_verification" })
+  public isCompletedEmailOtpVerification: boolean;
+  // ---- END STATUS INFO--------------------------------
+
+  // ------- AUTH INFO--------------------------------
+  @Column({ name: "last_login" })
+  public lastLogin: string;
+
+  @Exclude()
+  @Column({ name: "forget_password_key" })
+  public forgetPasswordKey: string;
+
+  @Exclude()
+  @Column({ name: "forget_password_link_expires" })
+  public linkExpires: string;
+  // ------- END AUTH INFO--------------------------------
+
+  @OneToMany((type) => Order, (order) => order.customer)
+  public order: Order[];
+
+  @OneToOne((type) => ExportLog, (exportLog) => exportLog.user)
+  public exportLog: ExportLog;
+
+  @OneToMany(
+    (type) => ProductViewLog,
+    (productviewlog) => productviewlog.customer
+  )
+  public productviewlog: ProductViewLog[];
+
+  @OneToOne((type) => Vendor)
+  public vendor: Vendor;
+
+  @OneToMany(() => Bid, (bid) => bid.customer)
+  public bids: Bid[];
+
+  @BeforeInsert()
+  public async createDetails(): Promise<void> {
+    this.createdDate = moment().format("YYYY-MM-DD HH:mm:ss");
+  }
+
+  @BeforeUpdate()
+  public async updateDetails(): Promise<void> {
+    this.modifiedDate = moment().format("YYYY-MM-DD HH:mm:ss");
+  }
 }

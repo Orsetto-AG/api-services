@@ -23,7 +23,6 @@ import { User } from '../../core/models/User';
 import { MAILService } from '../../../auth/mail.services';
 import { UpdateCustomer } from './requests/UpdateCustomerRequest';
 import { SettingService } from '../../core/services/SettingService';
-import { CustomerGroupService } from '../../core/services/CustomerGroupService';
 import { OrderProductService } from '../../core/services/OrderProductService';
 import { EmailTemplateService } from '../../core/services/EmailTemplateService';
 import { VendorService } from '../../core/services/VendorService';
@@ -48,7 +47,6 @@ export class CustomerController {
     constructor(
         private customerService: CustomerService,
         private orderProductService: OrderProductService,
-        private customerGroupService: CustomerGroupService,
         private settingService: SettingService,
         private productViewLogService: ProductViewLogService,
         private vendorService: VendorService,
@@ -512,12 +510,7 @@ export class CustomerController {
             };
             return response.status(400).send(errorResponse);
         }
-        const groupName = await this.customerGroupService.findOne({
-            where: {
-                id: customer.customerGroupId,
-            },
-        });
-        customer.customerGroupName = (groupName && groupName.name !== undefined) ? groupName.name : '';
+        customer.customerGroupName = '';
         const successResponse: any = {
             status: 1,
             message: 'successfully got buyer details',
@@ -924,7 +917,6 @@ export class CustomerController {
     @Authorized()
     public async customerCounts(@Res() response: any): Promise<any> {
         const customer: any = {};
-        const select = [];
         const search = [];
         const WhereConditions = [{
             name: 'deleteFlag',
@@ -958,30 +950,12 @@ export class CustomerController {
             },
         ];
         const inActiveCustomerCount = await this.customerService.list(0, 0, search, whereConditionsInActive, 0, 1);
-        const WhereConditionss = [];
-        const allCustomerGroupCount = await this.customerGroupService.list(0, 0, select, WhereConditionss, 1);
-        const whereConditionsGroupInActive = [
-            {
-                name: 'isActive',
-                op: 'where',
-                value: 0,
-            },
-        ];
-        const whereConditionsGroupActive = [
-            {
-                name: 'isActive',
-                op: 'where',
-                value: 1,
-            },
-        ];
-        const activeCustomerGroupCount = await this.customerGroupService.list(0, 0, select, whereConditionsGroupActive, 1);
-        const inActiveCustomerGroupCount = await this.customerGroupService.list(0, 0, select, whereConditionsGroupInActive, 1);
         customer.totalCustomer = allCustomerCount;
         customer.activeCustomer = activeCustomerCount;
         customer.inActiveCustomer = inActiveCustomerCount;
-        customer.totalCustomerGroup = allCustomerGroupCount;
-        customer.activeCustomerGroup = activeCustomerGroupCount;
-        customer.inActiveCustomerGroup = inActiveCustomerGroupCount;
+        customer.totalCustomerGroup = 0;
+        customer.activeCustomerGroup = 0;
+        customer.inActiveCustomerGroup = 0;
         const successResponse: any = {
             status: 1,
             message: 'Successfully got the buyer Count',

@@ -10,8 +10,6 @@ import { OrderProductService } from '../../core/services/OrderProductService';
 import { OrderStatusService } from '../../core/services/OrderStatusService';
 import { SettingService } from '../../core/services/SettingService';
 import { PdfService } from '../../core/services/PdfService';
-import { CountryService } from '../../core/services/CountryService';
-import { ZoneService } from '../../core/services/zoneService';
 import { Payment } from '../../core/models/Payment';
 import { PaymentItems } from '../../core/models/PaymentItems';
 import { VendorPayment } from '../../core/models/VendorPayment';
@@ -49,8 +47,6 @@ export class OrderController {
         private orderLogService: OrderLogService,
         private orderProductService: OrderProductService,
         private pdfService: PdfService,
-        private countryService: CountryService,
-        private zoneService: ZoneService,
         private settingService: SettingService,
         private s3Service: S3Service,
         private imageService: ImageService,
@@ -588,11 +584,9 @@ export class OrderController {
         const limit = 1;
         const settings: any = await this.settingService.list(limit, select, relation, WhereConditions);
         const settingDetails = settings[0];
-        const countryData: any = await this.countryService.findOne({ where: { countryId: settingDetails.countryId } });
-        const zoneData: any = await this.zoneService.findOne({ where: { zoneId: settingDetails.zoneId } });
         orderData.settingDetails = settingDetails;
-        orderData.zoneData = (zoneData !== undefined) ? zoneData : ' ';
-        orderData.countryData = (countryData !== undefined) ? countryData : ' ';
+        orderData.zoneData = ' ';
+        orderData.countryData = ' ';
         orderData.currencyCode = orderData.currencyCode;
         orderData.symbolLeft = orderData.currencySymbolLeft;
         orderData.symbolRight = orderData.currencySymbolRight;

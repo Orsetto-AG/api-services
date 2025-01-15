@@ -31,8 +31,8 @@ export class RegisterRequest {
   public emailId: string;
 
   @IsNotEmpty({
-    message: "Required regardless of whether it is a company or not.",
+    message: "Accepeted Term and Conditions required",
   })
   @IsBoolean()
-  public isCompany: boolean;
+  public isAcceptedTermAndConditions: boolean;
 }

@@ -1,11 +1,10 @@
 
 
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity} from 'typeorm';
 import { PrimaryGeneratedColumn } from 'typeorm/index';
 import { BaseModel } from './BaseModel';
 import moment = require('moment');
 import { IsNotEmpty } from 'class-validator';
-import { Product } from './ProductModel';
 @Entity('product_discount')
 export class ProductDiscount extends BaseModel {
     @IsNotEmpty()
@@ -35,10 +34,6 @@ export class ProductDiscount extends BaseModel {
 
     @Column({ name: 'date_end' })
     public dateEnd: Date;
-
-    @ManyToOne(type => Product, product => product.productSpecial)
-    @JoinColumn({ name: 'product_id' })
-    public product: Product;
 
     @BeforeInsert()
     public async createDetails(): Promise<void> {

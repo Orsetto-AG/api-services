@@ -6,8 +6,6 @@ import smtpTransport from 'nodemailer-smtp-transport';
 import { env, mail } from '../../../../../src/env';
 import * as path from 'path';
 import fs = require('fs');
-import Container from 'typedi';
-import { CountryService } from '../../../../../src/api/core/services/CountryService';
 @JsonController('/webhook-client')
 export class WebHookClientController {
     constructor() {
@@ -61,9 +59,7 @@ export class WebHookClientController {
             }
             templateContentDetails.baseUrl = env.baseUrl;
             templateContentDetails.productInfo = templateContentDetails.productInfo ?? [];
-            const countryService = Container.get<CountryService>(CountryService);
-            const country = await countryService.findOne({ where: { countryId: templateContentDetails.logo.countryId } });
-            templateContentDetails.logo.countryName = country?.name ?? '';
+            templateContentDetails.logo.countryName = "Switzerland";
             templateContentDetails.logoBaseUrl = getBaseUrl(env.baseUrl);
             templateContentDetails.regardsRequired = templateContentDetails.regardsRequired === 0 ? 0 : 1;
             const emailPath = path.join(process.cwd(), 'views', templateContentDetails.templateName === 'invoice-order' ? 'invoice-order.ejs' : 'emailTemplates.ejs');

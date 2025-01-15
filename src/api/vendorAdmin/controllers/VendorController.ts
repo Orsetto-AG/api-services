@@ -16,7 +16,6 @@ import {
     Delete,
 } from 'routing-controllers';
 import { CustomerService } from '../../core/services/CustomerService';
-import { CountryService } from '../../core/services/CountryService';
 import { VendorService } from '../../core/services/VendorService';
 import { CategoryService } from '../../core/services/CategoryService';
 import { EmailTemplateService } from '../../core/services/EmailTemplateService';
@@ -40,7 +39,6 @@ import moment from 'moment';
 import { VendorApproveRequest } from './requests/VendorApproveRequest';
 import { DocumentService } from '../../core/services/DocumentService';
 import { UpdateVendorDocument } from './requests/UpdateVendorDocumentRequest';
-import { ZoneService } from '../../core/services/zoneService';
 import { IndustryService } from '../../core/services/IndustryService';
 import { VendorMediaService } from '../../core/services/VendorMediaService';
 import { VendorDocumentLogService } from '../../core/services/VendorDocumentLogService';
@@ -59,7 +57,6 @@ export class VendorAdminController {
         private s3Service: S3Service,
         private settingService: SettingService,
         private vendorProductService: VendorProductService,
-        private countryService: CountryService,
         // private customerDocumentService: VendorDocumentService,
         private imageService: ImageService,
         private vendorGroupService: VendorGroupService,
@@ -69,7 +66,6 @@ export class VendorAdminController {
         private vendorDocumentService: VendorDocumentService,
         // private vendorDocumentLogService: VendorDocumentLogService
         private documentService: DocumentService,
-        private zoneService: ZoneService,
         private industryService: IndustryService,
         private vendorMediaService: VendorMediaService,
         private documentLogService: VendorDocumentLogService,
@@ -1990,21 +1986,9 @@ export class VendorAdminController {
             vendor.totalEarnings = orderCount;
         }
         vendor.productCount = await this.vendorProductService.vendorProductsCount(id);
-        const country = await this.countryService.findOne({
-            select: ['name'],
-            where: { countryId: vendor.companyCountryId },
-        });
-        if (country) {
-            vendor.countryName = country.name;
-        }
+        vendor.countryName = "";
 
-        const state = await this.zoneService.findOne({
-            select: ['name'],
-            where: { zoneId: vendor.zoneId },
-        });
-        if (state) {
-            vendor.stateName = state.name;
-        }
+        vendor.stateName = "";
 
         const industry = await this.industryService.findOne({
             select: ['name'],
